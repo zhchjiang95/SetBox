@@ -1,0 +1,139 @@
+{
+  "manifest_version": 2,
+  "name": "集盒",
+  "version": "1.1.0",
+  "description": "一个工具集合盒子 • 公众号@Slothful",
+  "icons": {
+    "16": "img/icon.png",
+    "48": "img/icon.png",
+    "128": "img/icon.png"
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_action": {
+    "default_icon": "img/icon.png",
+    "default_title": "一个工具集合盒子 • 公众号@Slothful",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "module/jquery-3.6.1.min.js",
+        "js/content/preview-pics.js",
+        "js/content/auto-scrolling.js",
+        "js/content/edit-mode.js",
+        "js/content/timing-request-page.js"
+      ],
+      "css": [
+        "css/content.css"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "js/content/copy-text.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "*://*.whg6.com/*"
+      ],
+      "js": [
+        "js/content/musictools.js"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "*://*.douyin.com/*"
+      ],
+      "js": [
+        "js/content/douyin.js"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "*://*.iqiyi.com/*.html*",
+        "*://*.youku.com/*.html*",
+        "*://v.qq.com/*.html*",
+        "*://*.bilibili.com/*"
+      ],
+      "js": [
+        "js/content/movie.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://*.gushiwen.cn/*"
+      ],
+      "js": [
+        "js/content/gushiwen.js"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "*://blog.csdn.net/*/article/*"
+      ],
+      "js": [
+        "module/clipboardjs/clipboard.min.js",
+        "js/content/csdn.js"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "*://music.163.com/*"
+      ],
+      "js": [
+        "js/content/music.js"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "*://movie.douban.com/subject/*"
+      ],
+      "js": [
+        "js/content/douban.js"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "*://*.data-baker.com/specs/*"
+      ],
+      "js": [
+        "js/content/data-baker.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "permissions": [
+    "contextMenus",
+    "tabs",
+    "notifications",
+    "webRequest",
+    "webRequestBlocking",
+    "storage",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "web_accessible_resources": [
+    "js/inject/musictools.js",
+    "js/inject/iqiyi.js",
+    "js/inject/youku.js",
+    "js/inject/vqq.js"
+  ],
+  "homepage_url": "https://github.com/zhchjiang95"
+}

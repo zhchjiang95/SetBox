@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>popup</title>
+  <link rel="stylesheet" href="./css/popup.css">
+  <link href="./module/bootstrap/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./module/remixIcon/remixicon.css">
+  <script src="./module/bootstrap/bootstrap.bundle.min.js"></script>
+  <script src="./module/jquery-3.6.1.min.js"></script>
+  <script src="./module/pinyin/pinyin_dict_withtone.js"></script>
+  <script src="./module/pinyin/pinyinUtil.js"></script>
+  <script src="./module/clipboardjs/clipboard.min.js"></script>
+</head>
+
+<body>
+  <div class="popup-container">
+    <div class="btn-group btn-group-sm">
+      <input type="radio" class="btn-check" name="btnradio" id="transBtn" autocomplete="off" checked>
+      <label class="btn btn-outline-primary" for="transBtn">快捷翻译</label>
+
+      <input type="radio" class="btn-check" name="btnradio" id="restBtn" autocomplete="off">
+      <label class="btn btn-outline-primary" for="restBtn">更多好玩的</label>
+    </div>
+    <div id="translate-tools">
+      <div class="mb-3 translation">
+        <nav class="nav">
+          <a class="nav-link" href="https://cn.bing.com/translator" target="_blank">
+            <i class="ri-microsoft-fill"></i>微软翻译
+          </a>
+          <a class="nav-link" href="https://fanyi.baidu.com/" target="_blank">
+            <i class="ri-baidu-fill"></i>百度翻译
+          </a>
+          <a class="nav-link" href="https://fanyi.youdao.com/" target="_blank">
+            <i class="ri-translate"></i>有道翻译
+          </a>
+        </nav>
+        <textarea autofocus class="form-control" id="exampleFormControlTextarea1" rows="2"
+          placeholder="请输入文本"></textarea>
+      </div>
+
+      <div class="tr-toggle">
+        <span class="type-1">en</span>
+        <span class="toggle-btn">
+          <i class="ri-arrow-left-right-line"></i>
+        </span>
+        <span class="type-2">zh</span>
+      </div>
+      <ul class="list-group">
+        <li class="list-group-item">
+          <div class="empty">翻译</div>
+          <div class="result">
+            <div class="spinner-border text-success" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </li>
+      </ul>
+      <div class="copy-success">
+        <i class="ri-checkbox-circle-fill"></i>
+        <div></div>
+      </div>
+    </div>
+    <div class="offcanvas offcanvas-bottom" style="min-height: 200px;height: initial;" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasBottomLabel">TITLE</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body small" style="text-align: center;">
+        <span class="spinner-border spinner-border" role="status" aria-hidden="true"></span>
+        <div class="contnet" style="text-align: left;">
+          <textarea autofocus class="form-control" id="toPinyin" rows="2" placeholder="请输入中文汉字"></textarea>
+        </div>
+      </div>
+    </div>
+    <div id="rest-tools">
+      <div class="card mb-2">
+        <div class="card-header">功能类</div>
+        <div class="card-body feat-box">
+          <div class="feat-item" data-feat-type="IP" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom"
+            aria-controls="offcanvasBottom">
+            <div>
+              <i class="ri-earth-fill"></i>
+              <span>IP信息查看</span>
+            </div>
+          </div>
+          <div class="feat-item" data-feat-type="pinyin" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom"
+            aria-controls="offcanvasBottom">
+            <div>
+              <i class="ri-pinyin-input"></i>
+              <span>汉字转拼音</span>
+            </div>
+          </div>
+          <div class="feat-item disabled" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom"
+            aria-controls="offcanvasBottom">
+            <div>
+              <i class="ri-more-fill"></i>
+              <span>...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">开关类</div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>网页图片匣子 - 查看记录的所有图片</label>
+              <div class="form-check form-switch">
+                <input data-type="previewPics" class="form-check-input" type="checkbox" role="switch">
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>网页自动滚动</label>
+              <div class="form-check form-switch">
+                <input data-type="autoScrolling" class="form-check-input" type="checkbox" role="switch">
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>网页编辑模式</label>
+              <div class="form-check form-switch">
+                <input data-type="editMode" class="form-check-input" type="checkbox" role="switch">
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>定时请求当前网页</label>
+              <div class="form-check form-switch">
+                <input data-type="timingRequest" class="form-check-input" type="checkbox" role="switch">
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>右键菜单快捷多平台搜索</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>文本选中复制</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>全网电影去广告免费看</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>网页版抖音添加下载按钮</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>bilibili 增加 2-4x 倍数播放</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>CSDN 自动展开更多，免登录复制</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>爱奇艺、优酷视频广告快进播放</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>网易云音乐音乐、专辑图下载</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>豆瓣增加搜索电影，搜片看片更快捷</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item">
+            <div class="switch-box">
+              <label>标贝文字转语音去字数限制，加下载按钮</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <p class="copyright">集盒（SetBox）by @公众号：Slothful</p>
+  </div>
+  <script src="./js/popup.js"></script>
+</body>
+
+</html>

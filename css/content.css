@@ -1,0 +1,148 @@
+.slothful-imgbox {
+  position: fixed;
+  top: 6vh;
+  right: 20px;
+  z-index: 999999999;
+  width: 302px;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 8px 8px;
+  border-radius: 16px;
+  border: 3px solid #f1f0f6;
+  font-size: 0;
+  box-shadow: 0px 6px 4px #0000000a;
+  background-color: #ffffff;
+  visibility: initial;
+  opacity: 1;
+  overflow: hidden;
+}
+.slothful-imgbox > div {
+  flex-grow: 1;
+  width: 100%;
+  overflow-y: auto;
+}
+
+.slothful-imgbox img {
+  width: 33.33%;
+  height: 90px;
+  object-fit: contain;
+  padding: 4px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: 0.3s;
+}
+
+.slothful-imgbox img:hover {
+  background-color: #f1f0f6;
+}
+
+.slothful-imgbox img:not(:nth-of-type(3n)) {
+  border-right: 1px solid #f1f0f6;
+}
+
+.slothful-imgbox .slothful-imgbox-h4 {
+  flex-shrink: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+  padding: 0 8px;
+  font-size: 14px;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: 1px solid #f1f0f6;
+  user-select: none;
+  background-color: #fff;
+}
+
+.slothful-imgbox-h4 svg {
+  font-size: 20px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+.slothful-imgbox-h4 svg:hover {
+  background-color: #f1f0f6;
+}
+
+.slothful-imgbox-h4 .drag-move {
+  flex-grow: 1;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: move;
+}
+
+/* auto scroll */
+.slothful-auto-scroll, .slothful-edit-mode {
+  position: fixed;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999999;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 50px;
+  user-select: none !important;
+  box-shadow: rgb(84 84 84 / 12%) 0px 2px 6px;
+  background-color: #fff;
+  overflow: hidden;
+}
+.slothful-auto-scroll span, .slothful-edit-mode span{
+  padding: 0 10px;
+  color: #adadad;
+}
+.slothful-auto-scroll svg, .slothful-edit-mode svg {
+  width: 16px !important;
+  height: auto !important;
+  padding: 8px 14px;
+  cursor: pointer;
+  overflow: initial !important;
+  box-sizing: content-box;
+  transition: .3s;
+}
+
+.slothful-auto-scroll svg:not(:last-child):hover {
+  background-color: #f1f0f6;
+}
+.slothful-auto-scroll svg:last-child, .slothful-edit-mode svg{
+  background-color: #ec6b5e;
+}
+.slothful-edit-mode svg{
+  padding: 4px 10px;
+}
+.slothful-edit-mode span{
+  font-size: 12px;
+}
+
+.slothful-csdn-copy-button{
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  color: #ffffff;
+  background-color: #9999AA;
+  padding: 2px 8px;
+  margin: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 5%), 0 2px 4px rgb(0 0 0 / 5%);
+}
+
+.slothful-csdn-copy-button svg{
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+}
