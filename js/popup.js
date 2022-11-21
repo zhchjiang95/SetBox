@@ -1,5 +1,6 @@
 
-const init = {
+const bgWindow = chrome.extension.getBackgroundPage();
+const popupInit = {
   translate() {
     new ClipboardJS('.btn-sm');
     const tr = new Map([['zh-Hans', '中文（简体）'], ['en', '英语']]);
@@ -123,7 +124,11 @@ const init = {
           sendMessage({ editMode: ty });
           break;
         case 'timingRequest':
-          sendMessage({ timingRequest: ty });
+          let t = 20;
+          if(ty === 'show'){
+            t = Number(prompt('请输入时间间隔（单位秒，默认20秒，请避免设置过小的时间间隔！关闭标签页可快速停止刷新，为防止内存泄漏请尽量使用开关停止刷新！）：')) || 20;
+          }
+          bgWindow.backgroundInit.interval(ty, t);
           break;
       }
     })
@@ -225,6 +230,6 @@ const init = {
   }
 }
 
-init.translate();
-init.rest();
-init.onFeatHandler();
+popupInit.translate();
+popupInit.rest();
+popupInit.onFeatHandler();

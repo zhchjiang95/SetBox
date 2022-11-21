@@ -1,4 +1,7 @@
-const init = {
+var backgroundInit = {
+  timer: 0,
+  timerTag: 0,
+  currentTag: {},
   contextMenu() {
     chrome.contextMenus.create({
       title: '百度搜索“%s”',
@@ -44,7 +47,7 @@ const init = {
             });
           })
         }, 1000)
-      } else if (details.initiator === 'https://music.163.com'&&details.type === 'media'){
+      } else if (details.initiator === 'https://music.163.com' && details.type === 'media') {
         clearTimeout(mTimer);
         mTimer = setTimeout(() => {
           chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -55,8 +58,33 @@ const init = {
         }, 1000)
       }
     }, { urls: ["<all_urls>"] }, ["blocking"]);
+  },
+  interval(ty, t) {
+    clearInterval(this.timer);
+    clearInterval(this.timerTag);
+    if (ty === 'show') {
+      chrome.tabs.query({
+        active: true,
+        currentWindow: true
+      }, (tabs) => {
+        this.currentTag = tabs[0];
+        this.timerTag = setInterval(() => {
+          chrome.tabs.query({
+          }, (tabs) => {
+            if (!tabs.find(v => v.title === this.currentTag.title)) {
+              clearInterval(this.timer);
+              clearInterval(this.timerTag);
+            }
+          })
+        }, t * 1000 * 4);
+        this.timer = setInterval(() => {
+          console.log('33333');
+          chrome.tabs.sendMessage(tabs[0]?.id, { timingRequest: { type: ty, time: t }, })
+        }, t * 1000);
+      })
+    }
   }
 }
 
-init.contextMenu();
-init.images();
+backgroundInit.contextMenu();
+backgroundInit.images();

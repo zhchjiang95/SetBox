@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "集盒",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "一个工具集合盒子 • 公众号@Slothful",
   "icons": {
     "16": "img/icon.png",
