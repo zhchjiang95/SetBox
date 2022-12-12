@@ -1,4 +1,3 @@
-
 const bgWindow = chrome.extension.getBackgroundPage();
 const popupInit = {
   translate() {
@@ -125,10 +124,13 @@ const popupInit = {
           break;
         case 'timingRequest':
           let t = 20;
-          if(ty === 'show'){
-            t = Number(prompt('请输入时间间隔（单位秒，默认20秒，请避免设置过小的时间间隔！关闭标签页可快速停止刷新，为防止内存泄漏请尽量使用开关停止刷新！）：')) || 20;
+          if (ty === 'show') {
+            t = Number(prompt('请输入时间间隔（单位秒，默认20秒，请谨慎设置过小的时间间隔！为防止内存泄漏请尽量在开启处拨动开关以停止刷新！）：')) || 20;
           }
           bgWindow.backgroundInit.interval(ty, t);
+          break;
+        case 'grayscale':
+          sendMessage({ grayscale: ty });
           break;
       }
     })

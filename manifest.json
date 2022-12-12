@@ -26,7 +26,8 @@
         "js/content/preview-pics.js",
         "js/content/auto-scrolling.js",
         "js/content/edit-mode.js",
-        "js/content/timing-request-page.js"
+        "js/content/timing-request-page.js",
+        "js/content/translator.js"
       ],
       "css": [
         "css/content.css"
@@ -38,7 +39,7 @@
         "<all_urls>"
       ],
       "js": [
-        "js/content/copy-text.js"
+        "js/content/grayscale.js"
       ],
       "run_at": "document_start"
     },
