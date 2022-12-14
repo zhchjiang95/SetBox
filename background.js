@@ -32,6 +32,7 @@ var backgroundInit = {
       }
     });
   },
+  // 网页图片匣子
   images() {
     const images = [];
     let timer
@@ -59,6 +60,7 @@ var backgroundInit = {
       }
     }, { urls: ["<all_urls>"] }, ["blocking"]);
   },
+  // 定时刷新网页
   interval(ty, t) {
     clearInterval(this.timer);
     clearInterval(this.timerTag);
@@ -78,12 +80,12 @@ var backgroundInit = {
           })
         }, t * 1000 * 4);
         this.timer = setInterval(() => {
-          console.log('33333');
           chrome.tabs.sendMessage(tabs[0]?.id, { timingRequest: { type: ty, time: t }, })
         }, t * 1000);
       })
     }
   },
+  // 划词翻译
   translator() {
     // 监听来自content-script的消息
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {

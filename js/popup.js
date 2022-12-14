@@ -89,6 +89,7 @@ const popupInit = {
       $('.result').append(btns).show();
     }
   },
+  // 开关类事件
   rest() {
     $('#translate-tools').show();
     $('#rest-tools').hide();
@@ -135,6 +136,7 @@ const popupInit = {
       }
     })
   },
+  // 功能类事件
   onFeatHandler() {
     $('.feat-item').click(function () {
       const { featType } = $(this).data();

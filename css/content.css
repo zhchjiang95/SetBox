@@ -180,6 +180,7 @@
   border-radius: 6px;
   user-select: initial;
   border: 1px solid #ececec;
+  word-break: break-all;
   background: #fff;
   color: #757575;
 }
