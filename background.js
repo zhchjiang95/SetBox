@@ -4,6 +4,20 @@ var backgroundInit = {
   currentTag: {},
   contextMenu() {
     chrome.contextMenus.create({
+      title: '谷歌搜索“%s”',
+      contexts: ['selection'],
+      onclick(params) {
+        chrome.tabs.create({ url: 'https://www.google.com/search?q=' + encodeURI(params.selectionText) });
+      }
+    });
+    chrome.contextMenus.create({
+      title: '必应搜索“%s”',
+      contexts: ['selection'],
+      onclick(params) {
+        chrome.tabs.create({ url: 'https://cn.bing.com/search?q=' + encodeURI(params.selectionText) });
+      }
+    });
+    chrome.contextMenus.create({
       title: '百度搜索“%s”',
       contexts: ['selection'],
       onclick(params) {
@@ -15,20 +29,6 @@ var backgroundInit = {
       contexts: ['selection'],
       onclick(params) {
         chrome.tabs.create({ url: 'https://kaifa.baidu.com/searchPage?module=SEARCH&wd=' + encodeURI(params.selectionText) });
-      }
-    });
-    chrome.contextMenus.create({
-      title: '必应搜索“%s”',
-      contexts: ['selection'],
-      onclick(params) {
-        chrome.tabs.create({ url: 'https://cn.bing.com/search?q=' + encodeURI(params.selectionText) });
-      }
-    });
-    chrome.contextMenus.create({
-      title: '谷歌搜索“%s”',
-      contexts: ['selection'],
-      onclick(params) {
-        chrome.tabs.create({ url: 'https://www.google.com/search?q=' + encodeURI(params.selectionText) });
       }
     });
   },

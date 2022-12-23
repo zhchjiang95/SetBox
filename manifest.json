@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "集盒",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "一个工具集合盒子 • 公众号@Slothful",
   "icons": {
     "16": "img/icon.png",
@@ -136,5 +136,5 @@
     "js/inject/youku.js",
     "js/inject/vqq.js"
   ],
-  "homepage_url": "https://github.com/zhchjiang95"
+  "homepage_url": "https://mp.weixin.qq.com/s/2Pn_D5hi6i6aMF7GySZ9rQ"
 }

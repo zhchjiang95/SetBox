@@ -126,7 +126,7 @@ const popupInit = {
         case 'timingRequest':
           let t = 20;
           if (ty === 'show') {
-            t = Number(prompt('请输入时间间隔（单位秒，默认20秒，请谨慎设置过小的时间间隔！为防止内存泄漏请尽量在开启处拨动开关以停止刷新！）：')) || 20;
+            t = Number(prompt('请输入时间间隔（单位秒，默认20秒，留空或点击取消按钮将每20秒会重复刷新页面。请谨慎设置过小的时间间隔！为防止内存泄漏请尽量在开启处拨动开关以停止刷新！）：')) || 20;
           }
           bgWindow.backgroundInit.interval(ty, t);
           break;

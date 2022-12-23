@@ -16,7 +16,7 @@ const onRenderPics = () => {
   const elImgs = [];
   pageSlothfulImages.forEach(url => {
     const img = new Image();
-    img.src = url;
+    img.dataset.src = url;
     img.onclick = () => {
       window.open(url);
     }
@@ -29,6 +29,28 @@ const onRenderPics = () => {
   const $div = $(div);
   $imgDiv[0].append(...elImgs);
   $div.append($imgDiv);
+
+  const lazyIntersection = new IntersectionObserver(entires => {
+    // entires为监听的节点数组对象
+    entires.forEach((item, index) => {
+      // console.log(item.target, item.isIntersecting? '可见': '不可见')
+      // isIntersecting是当前监听元素交叉区域是否在可视区域指定的阈值内返回的是一个布尔值
+      if (item.isIntersecting) {
+        item.target.src = item.target.getAttribute('data-src')
+        // 这里资源加载后就停止进行观察
+        lazyIntersection.unobserve(item.target)
+      }
+    })
+  }, {
+    root: $div[0],
+    threshold: [0],
+    rootMargin: '0px'
+  })
+  elImgs.forEach(item => {
+    // observe用来观察指定的DOM节点
+    lazyIntersection.observe(item)
+  })
+
   $('.slothful-imgbox')?.remove();
   $('body').append($div);
   setTimeout(() => {
