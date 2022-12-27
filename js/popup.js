@@ -57,11 +57,28 @@ const popupInit = {
       const to = from === 'en' ? 'zh-Hans' : 'en'
       const p = `&isVertical=1&IG=9B029BBF312D4BC593DB3D0530630910&text=${encodeURIComponent(value)}&to=${to}&token=${token}&key=${key}`
       const url1 = `https://cn.bing.com/tlookupv3?IID=translator.5022.2&from=${from}`;
-      const url2 = `https://cn.bing.com/ttranslatev3?IID=translator.5022.5&fromLang=${from}`;
+      const url2 = 'https://cn.bing.com/ttranslatev3?&isVertical=1&IG=9B029BBF312D4BC593DB3D0530630910&IID=translator.5022.5';
 
       $('.type-1').text(tr.get(from)).data('tr', from);
       $('.type-2').text(tr.get(to)).data('tr', to);
       $('.tr-toggle').show();
+
+      const bkRequest = () => {
+        fetch(url2, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `text=${value}&to=${to}&token=${token}&key=${key}&fromLang=${from}`
+        }).then(res => res.json()).then((res) => {
+          $('.spinner-border').hide();
+          if (res?.[0]?.translations.length) {
+            splicingResult(res?.[0]?.translations, 'text');
+          } else {
+            $('.empty').text('暂无翻译结果').show();
+          }
+        })
+      }
 
       fetch(url1 + p, {
         method: 'POST'
@@ -70,17 +87,10 @@ const popupInit = {
           $('.spinner-border').hide();
           splicingResult(res?.[0]?.translations, 'displayTarget');
         } else {
-          fetch(url2 + p, {
-            method: 'POST'
-          }).then(res => res.json()).then((res) => {
-            $('.spinner-border').hide();
-            if (res?.[0]?.translations.length) {
-              splicingResult(res?.[0]?.translations, 'text');
-            } else {
-              $('.empty').text('暂无翻译结果').show();
-            }
-          })
+          bkRequest();
         }
+      }).catch(() => {
+        bkRequest();
       })
     }
 

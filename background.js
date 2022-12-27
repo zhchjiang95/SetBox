@@ -106,7 +106,33 @@ var backgroundInit = {
           const to = from === 'en' ? 'zh-Hans' : 'en'
           const p = `&isVertical=1&IG=9B029BBF312D4BC593DB3D0530630910&text=${encodeURIComponent(value)}&to=${to}&token=${token}&key=${key}`
           const url1 = `https://cn.bing.com/tlookupv3?IID=translator.5022.2&from=${from}`;
-          const url2 = `https://cn.bing.com/ttranslatev3?IID=translator.5022.5&fromLang=${from}`;
+          const url2 = 'https://cn.bing.com/ttranslatev3?&isVertical=1&IG=9B029BBF312D4BC593DB3D0530630910&IID=translator.5022.5';
+
+          const bkRequest = () => {
+            fetch(url2, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: `text=${value}&to=${to}&token=${token}&key=${key}&fromLang=${from}`
+            }).then(res => res.json()).then((res) => {
+              if (res?.[0]?.translations.length) {
+                const translatorResult = res?.[0]?.translations.map(v => v.text);
+                chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                  chrome.tabs.sendMessage(tabs[0].id, { translatorResult }, function (response) {
+                    console.log(response);
+                  });
+                });
+              } else {
+                chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                  chrome.tabs.sendMessage(tabs[0].id, { translatorResult: ['暂无翻译结果'] }, function (response) {
+                    console.log(response);
+                  });
+                });
+              }
+            })
+          }
+
 
           fetch(url1 + p, {
             method: 'POST'
@@ -119,25 +145,10 @@ var backgroundInit = {
                 });
               });
             } else {
-              fetch(url2 + p, {
-                method: 'POST'
-              }).then(res => res.json()).then((res) => {
-                if (res?.[0]?.translations.length) {
-                  const translatorResult = res?.[0]?.translations.map(v => v.text);
-                  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                    chrome.tabs.sendMessage(tabs[0].id, { translatorResult }, function (response) {
-                      console.log(response);
-                    });
-                  });
-                } else {
-                  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                    chrome.tabs.sendMessage(tabs[0].id, { translatorResult: ['暂无翻译结果'] }, function (response) {
-                      console.log(response);
-                    });
-                  });
-                }
-              })
+              bkRequest();
             }
+          }).catch(() => {
+            bkRequest();
           })
         })
       }
