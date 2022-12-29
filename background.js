@@ -105,8 +105,8 @@ var backgroundInit = {
           const from = pattern.test(value) ? 'zh-Hans' : 'en'
           const to = from === 'en' ? 'zh-Hans' : 'en'
           const p = `&isVertical=1&IG=9B029BBF312D4BC593DB3D0530630910&text=${encodeURIComponent(value)}&to=${to}&token=${token}&key=${key}`
-          const url1 = `https://cn.bing.com/tlookupv3?IID=translator.5022.2&from=${from}`;
-          const url2 = 'https://cn.bing.com/ttranslatev3?&isVertical=1&IG=9B029BBF312D4BC593DB3D0530630910&IID=translator.5022.5';
+          const url1 = `https://cn.bing.com/tlookupv3?&IID=translator.5022.2&from=${from}`;
+          const url2 = 'https://cn.bing.com/ttranslatev3?isVertical=1&IG=9B029BBF312D4BC593DB3D0530630910&IID=translator.5022.5';
 
           const bkRequest = () => {
             fetch(url2, {

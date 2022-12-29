@@ -26,6 +26,10 @@ const slothful_translator = {
     }).end().find('.slothful_result').click(function (e) {
       e.stopPropagation();
     });
+
+    const onRestoration = () => {
+      $btn.hide().find('.slothful_result').hide().end().find('.slothful_loading').hide();
+    }
     $('body').append($btn);
     let timer
     document.addEventListener('selectionchange', () => {
@@ -37,9 +41,10 @@ const slothful_translator = {
           selectionText = text;
           const oRange = selection.getRangeAt(0)
           const oRect = oRange.getBoundingClientRect()
+          onRestoration();
           $btn.css({ left: oRect.left + 'px', top: oRect.top + 20 + 'px' }).show();
         } else {
-          $btn.hide().find('.slothful_result').hide().end().find('.slothful_loading').hide();;
+          onRestoration();
         }
       }, 400)
     })
