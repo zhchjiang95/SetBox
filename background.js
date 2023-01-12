@@ -95,7 +95,7 @@ var backgroundInit = {
         let key = '1665478121981';
 
         fetch('https://cn.bing.com/translator?ref=TThis&text=&from=zh-Hans&to=en').then(res => res.text()).then(res => {
-          const reg = /(?<=params_RichTranslateHelper = \[).*?(?=",)/;
+          const reg = /(?<=params_AbusePreventionHelper = \[).*?(?=",)/;
           const r = res.match(reg)[0];
           const result = r?.split(',\"');
           token = result?.[1];
@@ -125,11 +125,17 @@ var backgroundInit = {
                 });
               } else {
                 chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                  chrome.tabs.sendMessage(tabs[0].id, { translatorResult: ['暂无翻译结果'] }, function (response) {
+                  chrome.tabs.sendMessage(tabs[0].id, { translatorResult: ['暂无翻译结果，请关注公众号Slothful获取版本更新。'] }, function (response) {
                     console.log(response);
                   });
                 });
               }
+            }).catch(() => {
+              chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, { translatorResult: ['翻译失败（网络异常或开启VPN后可能会出现此问题）'] }, function (response) {
+                  console.log(response);
+                });
+              });
             })
           }
 
