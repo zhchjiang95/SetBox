@@ -153,10 +153,11 @@ const popupInit = {
   onFeatHandler() {
     $('.feat-item').click(function () {
       const { featType } = $(this).data();
+      $('.offcanvas .contnet').find('.list-group').remove();
+      $('.offcanvas .contnet').find('textarea').hide();
       $('.offcanvas .offcanvas-title').text($(this).find('span').text());
       switch (featType) {
         case 'IP':
-          $('.offcanvas .contnet').text('');
           $('.offcanvas .spinner-border').show();
           fetch('https://ip8.com/').then((res) => res.text()).then((res) => {
             const reg = /(?<=<td>)([\w\W]*?)(?=<\/td>)/g;
@@ -203,27 +204,10 @@ const popupInit = {
           }).finally(() => {
             $('.offcanvas .spinner-border').hide();
           });
-          // fetch('https://ipinfo.io/json').then(res => res.json()).then(res => {
-          //   delete res.readme;
-          //   const keys = Object.keys(res);
-          //   const values = Object.values(res);
-          //   let listr = '';
-          //   keys.forEach((key, i) => {
-          //     listr += `<li class="list-group-item d-flex justify-content-between align-items-center">
-          //         ${key}
-          //         <span class="badge bg-primary rounded-pill">${values[i]}</span>
-          //     </li>`
-          //   })
-          //   const ulstr = `<ul class="list-group">${listr}</ul>`
-          //   $('.offcanvas .contnet').append(ulstr);
-          // }).catch(() => {
-          //   $('.offcanvas .contnet').text('出错了，请重试。');
-          // }).finally(() => {
-          //   $('.offcanvas .spinner-border').hide();
-          // });
           break;
         case 'pinyin':
           let timer;
+          $('.offcanvas .contnet').find('textarea').show().val('')
           $('#toPinyin').on('input', function () {
             clearTimeout(timer);
             timer = setTimeout(() => {
