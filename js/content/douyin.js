@@ -12,7 +12,17 @@ const douyinDownBtn = () => {
         el.dataset.jump = 1;
         el.title = '下载（@公众号Slothful）'
         el.style.transform = 'rotate(90deg)';
+        const div = el.querySelector('div[data-e2e=video-player-share');
+        div.style.display = 'flex';
+        div.dataset.e2e = '';
+        const text = div.querySelector('&>div:last-child')
+        text.innerText = '下载';
+        text.style.transform = 'rotate(-90deg)';
         el.onclick = () => {
+          if(!source){
+            alert('公众号Slothful：暂时无法下载！')
+            return
+          }
           el.style.opacity = 0.3;
           el.style.pointerEvents = 'none';
           fetch(source.src).then(r => r.blob()).then(res => {
