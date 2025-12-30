@@ -157,54 +157,6 @@ const popupInit = {
       $('.offcanvas .contnet').find('textarea').hide();
       $('.offcanvas .offcanvas-title').text($(this).find('span').text());
       switch (featType) {
-        case 'IP':
-          $('.offcanvas .spinner-border').show();
-          fetch('https://ip8.com/').then((res) => res.text()).then((res) => {
-            const reg = /(?<=<td>)([\w\W]*?)(?=<\/td>)/g;
-            const arr = res.match(reg);
-            arr.splice(6, 2);
-            arr.splice(27, 2);
-            const results = []
-            let i = 0;
-            for (; i < arr.length;) {
-              o = {}
-              if (i % 3 === 0) {
-                let item = arr[i + 2];
-                if (item.includes('</a>')) {
-                  const reg1 = /(?<=\>)([\w\W]*)(?=\<\/)/g;
-                  item = item.match(reg1)[0];
-                }
-                if (item.includes('<img')) {
-                  item = item.replace('src="', 'src="http://ip8.com');
-                }
-                o.title = arr[i];
-                o.value = item;
-                i += 3;
-              } else {
-                i++
-              }
-              results.push(o)
-            }
-            results.splice(9);
-            // console.log(results);
-            let listr = '';
-            results.forEach((item) => {
-              listr += `
-              <li class="list-group-item d-flex justify-content-between align-items-start">
-                <div class="ms-2 me-auto">
-                  <div class="fw-bold">${item.title}</div>
-                  ${item.value}
-                </div>
-              </li>`
-            })
-            const ulstr = `<ul class="list-group">${listr}</ul>`
-            $('.offcanvas .contnet').append(ulstr);
-          }).catch(() => {
-            $('.offcanvas .contnet').text('出错了，请重试。');
-          }).finally(() => {
-            $('.offcanvas .spinner-border').hide();
-          });
-          break;
         case 'pinyin':
           let timer;
           $('.offcanvas .contnet').find('textarea').show().val('')

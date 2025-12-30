@@ -1,37 +1,5 @@
-const onRenderElement = (btnEl, playEl) => {
-  $(btnEl).append('<div class="slothful-play-btn" style="color: #fff;padding: 8px 12px;font-size: 12px;border-radius: 4px;background: linear-gradient(45deg, #4263a7, #d53662);cursor: pointer;">点击尝试免费/去广告播放 @公众号：Slothful</div>');
-  $('body').on('click', '.slothful-play-btn', function () {
-    $(playEl).children().remove();
-    $(playEl).append(`<iframe allowfullscreen width="100%" height="100%" style="box-sizing: border-box;" src="https://jx.bozrc.com:4433/player/?url=${location.origin + location.pathname}">`);
-  })
-}
-
-const slothful_movie = {
-  renderScript(jsPath){
-    var temp = document.createElement('script');
-    temp.setAttribute('type', 'text/javascript');
-    temp.src = chrome.extension.getURL(jsPath);
-    temp.onload = function () {
-      this.parentNode.removeChild(this);
-    };
-    document.head.appendChild(temp);
-  }
-}
-
 setTimeout(function () {
-  if (location.host.includes('iqiyi')) {
-    slothful_movie.renderScript('js/inject/iqiyi.js');
-    setTimeout(function () {
-      onRenderElement('.qy-side-head', '.flash-wrap');
-    }, 2000)
-  } else if (location.host.includes('youku')) {
-    slothful_movie.renderScript('js/inject/youku.js');
-    onRenderElement('.normal-title-wrap', '#ykPlayer');
-  } else if (location.host.includes('qq.com')) {
-    // slothful_movie.renderScript('js/inject/vqq.js');
-    onRenderElement('.intro-wrapper__desc', '#player');
-  } else if (location.host.includes('bilibili')) {
-    onRenderElement('.pub-wrapper', '#bilibili-player');
+  if (location.host.includes('bilibili')) {
     if (location.pathname.includes('/video')) {
       const timer = setInterval(() => {
         const playbackrateMenu = $('.bpx-player-ctrl-playbackrate-menu');
