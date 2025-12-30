@@ -45,15 +45,6 @@
     },
     {
       "matches": [
-        "*://*.douyin.com/*"
-      ],
-      "js": [
-        "js/content/douyin.js"
-      ],
-      "run_at": "document_end"
-    },
-    {
-      "matches": [
         "*://*.bilibili.com/*"
       ],
       "js": [
