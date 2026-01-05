@@ -82,6 +82,15 @@
     },
     {
       "matches": [
+        "*://*.douyin.com/*"
+      ],
+      "js": [
+        "js/content/douyin.js"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
         "*://movie.douban.com/subject/*"
       ],
       "js": [
