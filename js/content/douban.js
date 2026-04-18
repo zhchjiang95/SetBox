@@ -9,7 +9,7 @@ const slothful_douban = {
       <a href="https://yiso.fun/info?searchKey=${title}" target="_blank" class="colbutt ll" style="letter-spacing: initial"><span>易搜</span></a>
       <a href="https://vidhub1.cc/vodsearch/${title}-------------.html" target="_blank" class="colbutt ll" style="letter-spacing: initial"><span>Vidhub</span></a>
       <a href="https://www.hdmoli.pro/search.php?searchword=${title}&submit=" target="_blank" class="colbutt ll" style="letter-spacing: initial"><span>HDmoli</span></a>
-      <a href="https://lemonto.top/search?keyword=${title}" target="_blank" class="colbutt ll" style="letter-spacing: initial"><span>磁力柠檬</span></a>
+      <a href="https://www.yuhuage.wiki/search/${encodeURIComponent(title).replaceAll('%', '')}_1_.html" target="_blank" class="colbutt ll" style="letter-spacing: initial"><span>磁力搜索</span></a>
       <a href="https://so.zimuku.org/search?q=${title}&chost=zimuku.org" target="_blank" class="colbutt ll" style="letter-spacing: initial"><span>字幕库</span></a>
     `
     document.querySelector('#interest_sect_level').innerHTML = btns;
