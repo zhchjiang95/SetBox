@@ -2,7 +2,7 @@ const slothful_douban = {
   init() {
     const title = document.querySelector('#content h1 span').innerText?.split(' ')[0];
     const btns = `
-      <a href="https://www.gying.net/s/1---1/${title}" target="_blank" class="colbutt ll" style="letter-spacing: initial"><span>观影GYING</span></a>
+      <a href="https://www.教父.com/s/1---1/${title}" target="_blank" class="colbutt ll" style="letter-spacing: initial"><span>观影GYING</span></a>
       <a href="https://aliso.cc/s/${title}-1-0.html" target="_blank" class="colbutt ll" style="letter-spacing: initial"><span>阿里搜</span></a>
       <a href="https://panso.pro/search?q=${title}&type=ALY" target="_blank" class="colbutt ll" style="letter-spacing: initial"><span>盘搜</span></a>
       <a href="https://www.upyunso.com/search.html?page=1&keyword=${title}" target="_blank" class="colbutt ll" style="letter-spacing: initial"><span>UP云搜</span></a>
