@@ -66,3 +66,7 @@ img/icon.png
 ## 安装
 
 打开 `chrome://extensions`，开启「开发者模式」，点击「加载已解压的扩展」选择本目录即可。
+
+## 公众号教程
+
+[微信公众号 - 集盒浏览器扩展安装方法](https://mp.weixin.qq.com/s/2Pn_D5hi6i6aMF7GySZ9rQ)

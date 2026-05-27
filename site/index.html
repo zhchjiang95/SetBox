@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>集盒 SetBox · 一个工具集合盒子</title>
+  <meta name="description" content="集盒 SetBox 是一个开源浏览器扩展，包含划词翻译、自动滚动、计算器、网页图片匣子、定时刷新、网页编辑模式，以及 B 站 / CSDN / 网易云 / 抖音 / 豆瓣 等站点增强。Manifest V3，零运行时依赖。" />
+  <meta name="theme-color" content="#6366F1" />
+  <meta property="og:title" content="集盒 SetBox · 一个工具集合盒子" />
+  <meta property="og:description" content="开源浏览器扩展。划词翻译、计算器、自动滚动、图片匣子，以及一系列站点增强。Manifest V3。" />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/png" href="../img/icon.png" />
+
+  <!-- Plus Jakarta Sans + Chinese fallbacks -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'],
+            mono: ['ui-monospace', '"SF Mono"', 'Consolas', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50:  '#F5F3FF',
+              100: '#EDE9FE',
+              200: '#DDD6FE',
+              300: '#C4B5FD',
+              400: '#A78BFA',
+              500: '#8B5CF6',
+              600: '#6366F1',
+              700: '#4F46E5',
+              800: '#4338CA',
+              900: '#1E1B4B',
+            },
+            cta: {
+              500: '#10B981',
+              600: '#059669',
+              700: '#047857',
+            },
+            ink: {
+              50:  '#F8FAFC',
+              100: '#F1F5F9',
+              200: '#E2E8F0',
+              500: '#64748B',
+              700: '#334155',
+              900: '#0F172A',
+            },
+          },
+          boxShadow: {
+            soft: '0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 20px rgba(99, 102, 241, 0.08)',
+            'soft-lg': '0 4px 8px rgba(15, 23, 42, 0.04), 0 24px 60px rgba(99, 102, 241, 0.16)',
+            ring: '0 0 0 4px rgba(99, 102, 241, 0.18)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body { font-family: '"Plus Jakarta Sans"', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+    /* Decorative gradient blob */
+    .blob {
+      background: radial-gradient(60% 60% at 50% 40%, rgba(139, 92, 246, 0.35), transparent 70%),
+                  radial-gradient(40% 40% at 80% 60%, rgba(16, 185, 129, 0.22), transparent 70%);
+      filter: blur(60px);
+    }
+    /* Subtle dotted backdrop */
+    .dotgrid {
+      background-image: radial-gradient(circle, rgba(99, 102, 241, 0.12) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    /* Mockup popup body styling matches the actual extension popup */
+    .mockup-pill {
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+    .mockup-pill:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(16, 185, 129, 0.18); }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+
+<body class="bg-brand-50 text-ink-900 antialiased selection:bg-brand-200 selection:text-brand-900">
+
+  <!-- Floating nav -->
+  <header class="fixed inset-x-4 top-4 z-50 mx-auto max-w-6xl">
+    <nav class="flex items-center justify-between rounded-2xl border border-white/60 bg-white/80 px-4 py-2.5 shadow-soft backdrop-blur-md">
+      <a href="#top" class="flex items-center gap-2 cursor-pointer">
+        <span class="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand-600 to-brand-400 text-white font-bold">盒</span>
+        <span class="font-bold tracking-tight">集盒 <span class="text-ink-500 font-normal">SetBox</span></span>
+      </a>
+      <div class="hidden items-center gap-7 text-sm text-ink-700 md:flex">
+        <a href="#features" class="hover:text-brand-700 transition-colors duration-200 cursor-pointer">功能</a>
+        <a href="#sites" class="hover:text-brand-700 transition-colors duration-200 cursor-pointer">站点增强</a>
+        <a href="#tech" class="hover:text-brand-700 transition-colors duration-200 cursor-pointer">技术</a>
+        <a href="#faq" class="hover:text-brand-700 transition-colors duration-200 cursor-pointer">FAQ</a>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="https://github.com/zhchjiang95/SetBox" target="_blank" rel="noopener"
+           class="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-ink-200 bg-white px-3 py-1.5 text-sm font-medium text-ink-700 hover:border-brand-300 hover:text-brand-700 transition-colors duration-200 cursor-pointer">
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.24 3.35.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18a10.93 10.93 0 0 1 5.74 0c2.2-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.07.78 2.16v3.2c0 .31.21.68.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
+          GitHub
+        </a>
+        <a href="https://fiume.cn/setbox/setbox.zip" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-1.5 rounded-lg bg-cta-500 px-3.5 py-1.5 text-sm font-semibold text-white shadow-soft hover:bg-cta-600 transition-colors duration-200 cursor-pointer">
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m6 9 6 6 6-6"/><path d="M5 21h14"/></svg>
+          下载
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top" class="pt-24">
+
+    <!-- Hero -->
+    <section class="relative overflow-hidden">
+      <div class="blob pointer-events-none absolute -top-32 left-1/2 h-[640px] w-[1100px] -translate-x-1/2 opacity-70" aria-hidden="true"></div>
+      <div class="dotgrid pointer-events-none absolute inset-0 opacity-50" aria-hidden="true"></div>
+
+      <div class="relative mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-12 lg:gap-12 lg:py-24">
+        <div class="lg:col-span-7 lg:pt-6">
+          <span class="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/70 px-3 py-1 text-xs font-medium text-brand-700 backdrop-blur">
+            <span class="grid h-1.5 w-1.5 place-items-center rounded-full bg-cta-500"></span>
+            v2.0 · Manifest V3 完全重构
+          </span>
+          <h1 class="mt-5 text-4xl font-extrabold leading-[1.1] tracking-tight text-ink-900 sm:text-5xl lg:text-6xl">
+            一个<span class="bg-gradient-to-br from-brand-600 to-brand-400 bg-clip-text text-transparent">工具集合盒子</span><br/>
+            装在浏览器里。
+          </h1>
+          <p class="mt-5 max-w-xl text-base text-ink-700 sm:text-lg">
+            划词翻译、自动滚动、计算器、汉字转拼音、网页图片匣子、定时刷新、网页编辑模式，
+            以及 B 站、CSDN、网易云、抖音、豆瓣等站点增强——一个扩展全包。
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a href="https://fiume.cn/setbox/setbox.zip" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-2 rounded-xl bg-cta-500 px-5 py-3 text-base font-semibold text-white shadow-soft-lg hover:bg-cta-600 hover:shadow-soft transition-colors duration-200 cursor-pointer">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m6 9 6 6 6-6"/><path d="M5 21h14"/></svg>
+              立即下载
+            </a>
+            <a href="https://github.com/zhchjiang95/SetBox" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-5 py-3 text-base font-semibold text-ink-900 hover:border-brand-300 hover:text-brand-700 transition-colors duration-200 cursor-pointer">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.24 3.35.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18a10.93 10.93 0 0 1 5.74 0c2.2-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.07.78 2.16v3.2c0 .31.21.68.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
+              GitHub
+            </a>
+          </div>
+
+          <dl class="mt-10 grid max-w-md grid-cols-3 gap-x-6 gap-y-2">
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-ink-500">Manifest</dt>
+              <dd class="text-2xl font-bold text-brand-700">V3</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-ink-500">运行时依赖</dt>
+              <dd class="text-2xl font-bold text-brand-700">0</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wide text-ink-500">站点增强</dt>
+              <dd class="text-2xl font-bold text-brand-700">9+</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Popup mockup -->
+        <div class="lg:col-span-5">
+          <div class="relative mx-auto max-w-sm">
+            <div class="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-br from-brand-300/40 to-cta-500/20 blur-2xl" aria-hidden="true"></div>
+            <div class="overflow-hidden rounded-2xl border border-white/80 bg-white shadow-soft-lg">
+              <!-- Browser chrome -->
+              <div class="flex items-center gap-1.5 border-b border-ink-100 bg-ink-50 px-3 py-2">
+                <span class="h-2.5 w-2.5 rounded-full bg-[#FF5F57]"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-[#28C840]"></span>
+                <div class="ml-3 flex h-6 flex-1 items-center justify-center rounded-md bg-white text-[10px] text-ink-500">
+                  chrome-extension://集盒
+                </div>
+              </div>
+
+              <!-- Popup body -->
+              <div class="space-y-3 p-3">
+                <div class="grid grid-cols-2 overflow-hidden rounded-lg border border-ink-200 text-xs">
+                  <button type="button" class="bg-brand-600 py-1.5 text-white cursor-pointer">翻译 / 计算</button>
+                  <button type="button" class="py-1.5 text-ink-500 hover:bg-ink-50 cursor-pointer transition-colors duration-200">更多工具</button>
+                </div>
+
+                <div class="space-y-2">
+                  <div class="flex justify-center gap-3 text-[11px] text-ink-500">
+                    <span class="cursor-default">Google</span>
+                    <span class="cursor-default">Bing</span>
+                    <span class="cursor-default">有道</span>
+                  </div>
+                  <textarea rows="2" readonly aria-label="示例输入"
+                    class="w-full resize-none rounded-md border border-ink-200 bg-white p-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-300">refactor</textarea>
+                  <div class="flex items-center gap-1.5 text-[11px]">
+                    <span class="flex-1 rounded-md border border-ink-200 bg-white py-1 text-center text-ink-500">英文</span>
+                    <span class="rounded-md border border-ink-200 bg-ink-50 px-2 py-1 text-ink-700">⇄</span>
+                    <span class="flex-1 rounded-md border border-ink-200 bg-white py-1 text-center text-ink-500">中文</span>
+                  </div>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="mockup-pill inline-flex cursor-pointer items-center gap-1 rounded-full border border-cta-500/30 bg-white px-3 py-1 text-[11px] font-medium text-cta-700">
+                      <span class="text-cta-600/60">⧉</span>重构
+                    </span>
+                    <span class="mockup-pill inline-flex cursor-pointer items-center gap-1 rounded-full border border-cta-500/30 bg-white px-3 py-1 text-[11px] font-medium text-cta-700">
+                      <span class="text-cta-600/60">⧉</span>重新设计
+                    </span>
+                    <span class="mockup-pill inline-flex cursor-pointer items-center gap-1 rounded-full border border-cta-500/30 bg-white px-3 py-1 text-[11px] font-medium text-cta-700">
+                      <span class="text-cta-600/60">⧉</span>改写
+                    </span>
+                  </div>
+                </div>
+
+                <div class="space-y-2 rounded-lg border border-ink-200 bg-white p-2.5">
+                  <div class="flex items-center justify-between text-[11px] text-ink-500">
+                    <span>计算器</span>
+                    <span class="hover:text-brand-700 cursor-pointer transition-colors">清空</span>
+                  </div>
+                  <input readonly value="(3 + 4) * 2 / 5" aria-label="示例表达式"
+                    class="w-full rounded-md border border-ink-200 bg-white px-2 py-1.5 font-mono text-xs focus:outline-none" />
+                  <div class="flex items-center gap-1 rounded-md bg-ink-50 px-2 py-1 font-mono text-[11px]">
+                    <span class="text-ink-500">=</span>
+                    <span class="font-semibold text-cta-600">2.8</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- v2.0 highlights ribbon -->
+    <section class="border-y border-ink-200 bg-white">
+      <div class="mx-auto max-w-6xl px-4 py-8">
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="flex items-start gap-3">
+            <span class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg bg-brand-100 text-brand-700">
+              <!-- Sparkle -->
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+            </span>
+            <div>
+              <h3 class="text-sm font-semibold text-ink-900">Manifest V3</h3>
+              <p class="mt-1 text-sm text-ink-500">Service Worker、chrome.alarms 全面替换 webRequest 拦截。</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg bg-brand-100 text-brand-700">
+              <!-- Lightning -->
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg>
+            </span>
+            <div>
+              <h3 class="text-sm font-semibold text-ink-900">零运行时依赖</h3>
+              <p class="mt-1 text-sm text-ink-500">告别 jQuery / Bootstrap / ClipboardJS，全部原生 DOM。</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg bg-brand-100 text-brand-700">
+              <!-- Shield -->
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8.5 8 9 4.5-.5 8-4 8-9V6l-8-3Z"/></svg>
+            </span>
+            <div>
+              <h3 class="text-sm font-semibold text-ink-900">CSP 友好</h3>
+              <p class="mt-1 text-sm text-ink-500">计算器使用递归下降解析器，全程无 eval、new Function。</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="grid h-9 w-9 flex-shrink-0 place-items-center rounded-lg bg-brand-100 text-brand-700">
+              <!-- Heart -->
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M12 21s-7-4.35-9.5-8.5C.69 9.21 2.61 5 6.5 5c2.04 0 3.5 1.14 5.5 3 2-1.86 3.46-3 5.5-3 3.89 0 5.81 4.21 4 7.5C19 16.65 12 21 12 21Z"/></svg>
+            </span>
+            <div>
+              <h3 class="text-sm font-semibold text-ink-900">完全开源</h3>
+              <p class="mt-1 text-sm text-ink-500">MIT 协议，所有逻辑可见，欢迎 fork 与提 issue。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features grid -->
+    <section id="features" class="mx-auto max-w-6xl px-4 py-20">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="text-sm font-semibold uppercase tracking-wider text-brand-700">通用功能</p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">不挑网站，开箱即用</h2>
+        <p class="mt-4 text-ink-500">每一项功能都是为日常浏览的小痛点而生，不需要配置。</p>
+      </div>
+
+      <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+        <article class="group rounded-2xl border border-ink-200 bg-white p-6 shadow-soft transition-shadow duration-200 hover:shadow-soft-lg">
+          <div class="flex items-center gap-3">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-100 text-brand-700">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14"/><path d="M5 8h6l-3 8"/><path d="M11 21h2"/><path d="m13 21 3-9 3 9"/><path d="M14 18h4"/></svg>
+            </span>
+            <h3 class="text-lg font-semibold text-ink-900">划词翻译</h3>
+          </div>
+          <p class="mt-4 text-sm text-ink-700">选中文本即弹出翻译按钮，一点即译。</p>
+          <p class="mt-2 text-sm text-ink-500">Bing 词典 → Bing 翻译 → Google 翻译 三级降级，token 自动刷新。</p>
+        </article>
+
+        <article class="group rounded-2xl border border-ink-200 bg-white p-6 shadow-soft transition-shadow duration-200 hover:shadow-soft-lg">
+          <div class="flex items-center gap-3">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-100 text-brand-700">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><path d="m7 8 5-5 5 5"/><path d="m7 16 5 5 5-5"/></svg>
+            </span>
+            <h3 class="text-lg font-semibold text-ink-900">自动滚动</h3>
+          </div>
+          <p class="mt-4 text-sm text-ink-700">长文阅读神器，可调速、可暂停、到底自动停止。</p>
+          <p class="mt-2 text-sm text-ink-500">基于 requestAnimationFrame，CPU 占用极低。</p>
+        </article>
+
+        <article class="group rounded-2xl border border-ink-200 bg-white p-6 shadow-soft transition-shadow duration-200 hover:shadow-soft-lg">
+          <div class="flex items-center gap-3">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-100 text-brand-700">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+            </span>
+            <h3 class="text-lg font-semibold text-ink-900">计算器</h3>
+          </div>
+          <p class="mt-4 text-sm text-ink-700">支持四则、括号、幂运算与一元符号，回车存历史。</p>
+          <p class="mt-2 text-sm text-ink-500">递归下降解析器，无 eval，CSP 干净。</p>
+        </article>
+
+        <article class="group rounded-2xl border border-ink-200 bg-white p-6 shadow-soft transition-shadow duration-200 hover:shadow-soft-lg">
+          <div class="flex items-center gap-3">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-100 text-brand-700">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.5-3.5L10 19"/></svg>
+            </span>
+            <h3 class="text-lg font-semibold text-ink-900">网页图片匣子</h3>
+          </div>
+          <p class="mt-4 text-sm text-ink-700">一键侧栏展示当前页面所有图片，可拖拽。</p>
+          <p class="mt-2 text-sm text-ink-500">DOM + Performance Timing 三路扫描，懒加载 + 去重。</p>
+        </article>
+
+        <article class="group rounded-2xl border border-ink-200 bg-white p-6 shadow-soft transition-shadow duration-200 hover:shadow-soft-lg">
+          <div class="flex items-center gap-3">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-100 text-brand-700">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            </span>
+            <h3 class="text-lg font-semibold text-ink-900">定时刷新</h3>
+          </div>
+          <p class="mt-4 text-sm text-ink-700">按当前标签页注册定时器，关闭页面自动清理。</p>
+          <p class="mt-2 text-sm text-ink-500">由 chrome.alarms 管理，重启浏览器也不丢。</p>
+        </article>
+
+        <article class="group rounded-2xl border border-ink-200 bg-white p-6 shadow-soft transition-shadow duration-200 hover:shadow-soft-lg">
+          <div class="flex items-center gap-3">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-100 text-brand-700">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"/></svg>
+            </span>
+            <h3 class="text-lg font-semibold text-ink-900">网页编辑模式</h3>
+          </div>
+          <p class="mt-4 text-sm text-ink-700">把任意页面变成可编辑文档，截图前修订神器。</p>
+          <p class="mt-2 text-sm text-ink-500">基于 designMode，关闭即恢复原状。</p>
+        </article>
+
+        <article class="group rounded-2xl border border-ink-200 bg-white p-6 shadow-soft transition-shadow duration-200 hover:shadow-soft-lg">
+          <div class="flex items-center gap-3">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-100 text-brand-700">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+            </span>
+            <h3 class="text-lg font-semibold text-ink-900">网页置灰</h3>
+          </div>
+          <p class="mt-4 text-sm text-ink-700">一键切换全站灰度，正式场合的体面工具。</p>
+          <p class="mt-2 text-sm text-ink-500">单条 CSS filter 即可切换，不污染 DOM。</p>
+        </article>
+
+        <article class="group rounded-2xl border border-ink-200 bg-white p-6 shadow-soft transition-shadow duration-200 hover:shadow-soft-lg">
+          <div class="flex items-center gap-3">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-100 text-brand-700">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            </span>
+            <h3 class="text-lg font-semibold text-ink-900">右键多平台搜索</h3>
+          </div>
+          <p class="mt-4 text-sm text-ink-700">选中文字，右键即可在谷歌、必应、百度、百度开发者中搜索。</p>
+          <p class="mt-2 text-sm text-ink-500">使用原生 contextMenus 实现，0 性能开销。</p>
+        </article>
+
+        <article class="group rounded-2xl border border-ink-200 bg-white p-6 shadow-soft transition-shadow duration-200 hover:shadow-soft-lg">
+          <div class="flex items-center gap-3">
+            <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-100 text-brand-700">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7"/></svg>
+            </span>
+            <h3 class="text-lg font-semibold text-ink-900">汉字转拼音</h3>
+          </div>
+          <p class="mt-4 text-sm text-ink-700">支持多音字组合输出，命名取名时的好帮手。</p>
+          <p class="mt-2 text-sm text-ink-500">字典文件懒加载，平时不占内存。</p>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Site enhancements -->
+    <section id="sites" class="bg-gradient-to-b from-white to-brand-50">
+      <div class="mx-auto max-w-6xl px-4 py-20">
+        <div class="mx-auto max-w-2xl text-center">
+          <p class="text-sm font-semibold uppercase tracking-wider text-brand-700">站点增强</p>
+          <h2 class="mt-3 text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">为常用网站修补一处小麻烦</h2>
+          <p class="mt-4 text-ink-500">默认全部启用，安装即生效，没有交叉权限。</p>
+        </div>
+
+        <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+
+          <div class="rounded-2xl border border-ink-200 bg-white p-5">
+            <div class="flex items-center gap-2 text-sm font-semibold text-ink-900">
+              <span class="grid h-7 w-7 place-items-center rounded-lg bg-[#FB7299]/10 text-[#FB7299]">B</span>
+              bilibili
+            </div>
+            <p class="mt-3 text-sm text-ink-700">视频与番剧倍速菜单加入 2.5x / 3x / 3.5x / 4x。</p>
+          </div>
+
+          <div class="rounded-2xl border border-ink-200 bg-white p-5">
+            <div class="flex items-center gap-2 text-sm font-semibold text-ink-900">
+              <span class="grid h-7 w-7 place-items-center rounded-lg bg-[#FC5531]/10 text-[#FC5531]">C</span>
+              CSDN
+            </div>
+            <p class="mt-3 text-sm text-ink-700">自动展开折叠代码、免登录复制、移除「关注」墙。</p>
+          </div>
+
+          <div class="rounded-2xl border border-ink-200 bg-white p-5">
+            <div class="flex items-center gap-2 text-sm font-semibold text-ink-900">
+              <span class="grid h-7 w-7 place-items-center rounded-lg bg-[#C20C0C]/10 text-[#C20C0C]">网</span>
+              网易云音乐
+            </div>
+            <p class="mt-3 text-sm text-ink-700">音乐与专辑封面下载（先播放后点下载）。</p>
+          </div>
+
+          <div class="rounded-2xl border border-ink-200 bg-white p-5">
+            <div class="flex items-center gap-2 text-sm font-semibold text-ink-900">
+              <span class="grid h-7 w-7 place-items-center rounded-lg bg-ink-900/10 text-ink-900">抖</span>
+              抖音
+            </div>
+            <p class="mt-3 text-sm text-ink-700">播放器右上角加下载按钮，文件名自动取自标题。</p>
+          </div>
+
+          <div class="rounded-2xl border border-ink-200 bg-white p-5">
+            <div class="flex items-center gap-2 text-sm font-semibold text-ink-900">
+              <span class="grid h-7 w-7 place-items-center rounded-lg bg-[#007722]/10 text-[#007722]">豆</span>
+              豆瓣电影
+            </div>
+            <p class="mt-3 text-sm text-ink-700">电影详情页加入阿里搜、Vidhub、字幕库等快搜入口。</p>
+          </div>
+
+          <div class="rounded-2xl border border-ink-200 bg-white p-5">
+            <div class="flex items-center gap-2 text-sm font-semibold text-ink-900">
+              <span class="grid h-7 w-7 place-items-center rounded-lg bg-[#5769F6]/10 text-[#5769F6]">标</span>
+              标贝 TTS
+            </div>
+            <p class="mt-3 text-sm text-ink-700">解锁字数限制，合成后一键下载语音。</p>
+          </div>
+
+          <div class="rounded-2xl border border-ink-200 bg-white p-5">
+            <div class="flex items-center gap-2 text-sm font-semibold text-ink-900">
+              <span class="grid h-7 w-7 place-items-center rounded-lg bg-[#964B00]/10 text-[#964B00]">古</span>
+              古诗文网
+            </div>
+            <p class="mt-3 text-sm text-ink-700">移除频繁弹出的微信登录浮窗。</p>
+          </div>
+
+          <div class="rounded-2xl border border-ink-200 bg-white p-5">
+            <div class="flex items-center gap-2 text-sm font-semibold text-ink-900">
+              <span class="grid h-7 w-7 place-items-center rounded-lg bg-brand-100 text-brand-700">G</span>
+              gying.net
+            </div>
+            <p class="mt-3 text-sm text-ink-700">整理倍速菜单，常用倍速清晰可选。</p>
+          </div>
+
+          <div class="rounded-2xl border border-ink-200 bg-white p-5">
+            <div class="flex items-center gap-2 text-sm font-semibold text-ink-900">
+              <span class="grid h-7 w-7 place-items-center rounded-lg bg-brand-100 text-brand-700">U</span>
+              upyunso
+            </div>
+            <p class="mt-3 text-sm text-ink-700">进入页面时自动关闭打扰式弹窗。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech specs -->
+    <section id="tech" class="mx-auto max-w-6xl px-4 py-20">
+      <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-wider text-brand-700">技术细节</p>
+          <h2 class="mt-3 text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">原生、轻量、可维护</h2>
+          <p class="mt-4 text-ink-700">2.0 把六年前的代码全部推倒重写，使用最新的 Manifest V3 规范、原生 DOM、ES Modules。</p>
+          <ul class="mt-8 space-y-4 text-sm text-ink-700">
+            <li class="flex items-start gap-3">
+              <svg viewBox="0 0 24 24" class="mt-0.5 h-5 w-5 flex-shrink-0 text-cta-600" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg>
+              <span><b class="text-ink-900">Manifest V3 服务工作者</b>：用 chrome.alarms 替代后台长驻 setInterval。</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <svg viewBox="0 0 24 24" class="mt-0.5 h-5 w-5 flex-shrink-0 text-cta-600" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg>
+              <span><b class="text-ink-900">原生 API 优先</b>：MutationObserver、IntersectionObserver、navigator.clipboard，告别 jQuery。</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <svg viewBox="0 0 24 24" class="mt-0.5 h-5 w-5 flex-shrink-0 text-cta-600" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg>
+              <span><b class="text-ink-900">CSP 友好的计算器</b>：自实现的递归下降解析器，无 eval、new Function。</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <svg viewBox="0 0 24 24" class="mt-0.5 h-5 w-5 flex-shrink-0 text-cta-600" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg>
+              <span><b class="text-ink-900">最小权限</b>：移除 webRequestBlocking，仅保留必要的 contextMenus / storage / alarms / activeTab。</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <svg viewBox="0 0 24 24" class="mt-0.5 h-5 w-5 flex-shrink-0 text-cta-600" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg>
+              <span><b class="text-ink-900">每个功能一个文件</b>：站点增强放在 src/content/sites/，新加站点不会影响其他逻辑。</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="overflow-hidden rounded-2xl border border-ink-200 bg-ink-900 shadow-soft-lg">
+          <div class="flex items-center gap-1.5 border-b border-white/10 bg-white/5 px-4 py-2.5">
+            <span class="h-2.5 w-2.5 rounded-full bg-[#FF5F57]"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-[#28C840]"></span>
+            <span class="ml-3 text-xs text-ink-200">manifest.json</span>
+          </div>
+          <pre class="overflow-x-auto p-5 font-mono text-[12.5px] leading-relaxed text-ink-200"><code>{
+  <span class="text-cta-500">"manifest_version"</span>: <span class="text-brand-300">3</span>,
+  <span class="text-cta-500">"name"</span>: <span class="text-brand-300">"集盒 SetBox"</span>,
+  <span class="text-cta-500">"version"</span>: <span class="text-brand-300">"2.0.0"</span>,
+  <span class="text-cta-500">"background"</span>: {
+    <span class="text-cta-500">"service_worker"</span>: <span class="text-brand-300">"src/background/service-worker.js"</span>,
+    <span class="text-cta-500">"type"</span>: <span class="text-brand-300">"module"</span>
+  },
+  <span class="text-cta-500">"permissions"</span>: [
+    <span class="text-brand-300">"contextMenus"</span>, <span class="text-brand-300">"storage"</span>,
+    <span class="text-brand-300">"activeTab"</span>, <span class="text-brand-300">"tabs"</span>, <span class="text-brand-300">"alarms"</span>
+  ]
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="bg-white">
+      <div class="mx-auto max-w-3xl px-4 py-20">
+        <div class="text-center">
+          <p class="text-sm font-semibold uppercase tracking-wider text-brand-700">常见问题</p>
+          <h2 class="mt-3 text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">FAQ</h2>
+        </div>
+
+        <div class="mt-10 space-y-3">
+          <details class="group rounded-2xl border border-ink-200 bg-white p-5 open:shadow-soft transition-shadow duration-200">
+            <summary class="flex cursor-pointer items-center justify-between text-base font-semibold text-ink-900">
+              如何安装？
+              <svg viewBox="0 0 24 24" class="h-5 w-5 text-ink-500 transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </summary>
+            <div class="mt-3 space-y-2 text-sm leading-relaxed text-ink-700">
+              <p>1. 从 <a href="https://fiume.cn/setbox/setbox.zip" target="_blank" rel="noopener" class="font-medium text-brand-700 hover:underline">下载页面</a> 获取压缩包并解压。</p>
+              <p>2. 浏览器地址栏输入 <code class="rounded bg-ink-100 px-1.5 py-0.5 font-mono text-xs">chrome://extensions</code>（Edge 用 <code class="rounded bg-ink-100 px-1.5 py-0.5 font-mono text-xs">edge://extensions</code>）。</p>
+              <p>3. 打开右上角「开发者模式」，点击「加载已解压的扩展」选择解压后的目录即可。</p>
+            </div>
+          </details>
+
+          <details class="group rounded-2xl border border-ink-200 bg-white p-5 open:shadow-soft transition-shadow duration-200">
+            <summary class="flex cursor-pointer items-center justify-between text-base font-semibold text-ink-900">
+              支持哪些浏览器？
+              <svg viewBox="0 0 24 24" class="h-5 w-5 text-ink-500 transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-ink-700">所有基于 Chromium 的浏览器都可使用，包括 Chrome、Edge、Brave、Arc、Vivaldi 等。Manifest V3 规范，未来 Firefox 也将兼容。</p>
+          </details>
+
+          <details class="group rounded-2xl border border-ink-200 bg-white p-5 open:shadow-soft transition-shadow duration-200">
+            <summary class="flex cursor-pointer items-center justify-between text-base font-semibold text-ink-900">
+              翻译会上传我的数据吗？
+              <svg viewBox="0 0 24 24" class="h-5 w-5 text-ink-500 transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-ink-700">划词翻译只把你点击翻译的那段文字发送到 Bing / Google 翻译公开接口，扩展自身不持有任何服务器，不收集、不记录、不外传。源代码全开，可自行审计。</p>
+          </details>
+
+          <details class="group rounded-2xl border border-ink-200 bg-white p-5 open:shadow-soft transition-shadow duration-200">
+            <summary class="flex cursor-pointer items-center justify-between text-base font-semibold text-ink-900">
+              定时刷新最小间隔为什么是 30 秒？
+              <svg viewBox="0 0 24 24" class="h-5 w-5 text-ink-500 transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-ink-700">这是 Chrome 对 chrome.alarms 的硬性限制，并非扩展所能控制。换来的好处是即便浏览器进入后台、Service Worker 被回收，定时器仍然可靠。</p>
+          </details>
+
+          <details class="group rounded-2xl border border-ink-200 bg-white p-5 open:shadow-soft transition-shadow duration-200">
+            <summary class="flex cursor-pointer items-center justify-between text-base font-semibold text-ink-900">
+              如何反馈问题或贡献代码？
+              <svg viewBox="0 0 24 24" class="h-5 w-5 text-ink-500 transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-ink-700">在 <a href="https://github.com/zhchjiang95/SetBox/issues" target="_blank" rel="noopener" class="font-medium text-brand-700 hover:underline">GitHub Issues</a> 提交问题或建议，欢迎 Pull Request。每个站点增强是单独文件，新增站点门槛极低。</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="relative overflow-hidden bg-brand-900">
+      <div class="blob pointer-events-none absolute inset-0 opacity-50" aria-hidden="true"></div>
+      <div class="relative mx-auto max-w-4xl px-4 py-20 text-center">
+        <h2 class="text-3xl font-bold text-white sm:text-4xl">现在就把它装进浏览器</h2>
+        <p class="mt-4 text-brand-200">免费、开源、零数据收集——一个安静实用的小盒子。</p>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="https://fiume.cn/setbox/setbox.zip" target="_blank" rel="noopener"
+             class="inline-flex items-center gap-2 rounded-xl bg-cta-500 px-5 py-3 text-base font-semibold text-white shadow-soft-lg hover:bg-cta-600 transition-colors duration-200 cursor-pointer">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m6 9 6 6 6-6"/><path d="M5 21h14"/></svg>
+            立即下载
+          </a>
+          <a href="https://github.com/zhchjiang95/SetBox" target="_blank" rel="noopener"
+             class="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-base font-semibold text-white hover:bg-white/10 transition-colors duration-200 cursor-pointer">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.24 3.35.95.1-.74.4-1.24.72-1.53-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18a10.93 10.93 0 0 1 5.74 0c2.2-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.07.78 2.16v3.2c0 .31.21.68.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
+            在 GitHub 上 Star
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-ink-200 bg-white">
+    <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-8 text-sm text-ink-500 sm:flex-row">
+      <p>© <span id="year"></span> 集盒 SetBox · 公众号 @Slothful</p>
+      <div class="flex items-center gap-5">
+        <a href="https://github.com/zhchjiang95/SetBox" target="_blank" rel="noopener" class="hover:text-brand-700 transition-colors duration-200 cursor-pointer">GitHub</a>
+        <a href="https://fiume.cn/setbox/setbox.zip" target="_blank" rel="noopener" class="hover:text-brand-700 transition-colors duration-200 cursor-pointer">下载</a>
+        <a href="https://github.com/zhchjiang95/SetBox/issues" target="_blank" rel="noopener" class="hover:text-brand-700 transition-colors duration-200 cursor-pointer">反馈</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
