@@ -1,148 +1,101 @@
 {
-  "manifest_version": 2,
-  "name": "集盒",
-  "version": "1.1.7",
-  "description": "一个工具集合盒子 • 公众号@Slothful",
+  "manifest_version": 3,
+  "name": "集盒 SetBox",
+  "version": "2.0.0",
+  "description": "一个工具集合盒子 • 公众号 @Slothful",
   "icons": {
     "16": "img/icon.png",
     "48": "img/icon.png",
     "128": "img/icon.png"
   },
-  "background": {
-    "scripts": [
-      "background.js"
-    ]
-  },
-  "browser_action": {
+  "action": {
     "default_icon": "img/icon.png",
-    "default_title": "一个工具集合盒子 • 公众号@Slothful",
+    "default_title": "集盒 · 工具集合盒子",
     "default_popup": "popup.html"
   },
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "activeTab",
+    "tabs",
+    "alarms"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "module/jquery-3.6.1.min.js",
-        "js/content/preview-pics.js",
-        "js/content/auto-scrolling.js",
-        "js/content/edit-mode.js",
-        "js/content/timing-request-page.js",
-        "js/content/translator.js"
-      ],
-      "css": [
-        "css/content.css"
-      ],
-      "run_at": "document_end"
+      "matches": ["<all_urls>"],
+      "js": ["src/content/shared/sb.js"],
+      "run_at": "document_start",
+      "all_frames": false
     },
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "js/content/grayscale.js"
-      ],
+      "matches": ["<all_urls>"],
+      "js": ["src/content/grayscale.js"],
       "run_at": "document_start"
     },
     {
-      "matches": [
-        "*://*.bilibili.com/*"
-      ],
+      "matches": ["<all_urls>"],
       "js": [
-        "js/content/bilibili.js"
+        "src/content/preview-pics.js",
+        "src/content/auto-scrolling.js",
+        "src/content/edit-mode.js",
+        "src/content/timing-reload.js",
+        "src/content/translator.js"
       ],
+      "css": ["src/content/shared/content.css"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["*://*.bilibili.com/*"],
+      "js": ["src/content/sites/bilibili.js"],
       "run_at": "document_idle"
     },
     {
-      "matches": [
-        "*://*.gushiwen.cn/*"
-      ],
-      "js": [
-        "js/content/gushiwen.js"
-      ],
+      "matches": ["*://*.gushiwen.cn/*"],
+      "js": ["src/content/sites/gushiwen.js"],
       "run_at": "document_end"
     },
     {
-      "matches": [
-        "*://*.gying.net/py/*"
-      ],
-      "js": [
-        "js/content/gying.js"
-      ],
+      "matches": ["*://*.gying.net/py/*"],
+      "js": ["src/content/sites/gying.js"],
       "run_at": "document_end"
     },
     {
-      "matches": [
-        "*://blog.csdn.net/*/article/*"
-      ],
-      "js": [
-        "module/clipboardjs/clipboard.min.js",
-        "js/content/csdn.js"
-      ],
+      "matches": ["*://blog.csdn.net/*/article/*"],
+      "js": ["src/content/sites/csdn.js"],
       "run_at": "document_end"
     },
     {
-      "matches": [
-        "*://music.163.com/*"
-      ],
-      "js": [
-        "js/content/music.js"
-      ],
+      "matches": ["*://music.163.com/*"],
+      "js": ["src/content/sites/music163.js"],
       "run_at": "document_end"
     },
     {
-      "matches": [
-        "*://*.douyin.com/*"
-      ],
-      "js": [
-        "js/content/douyin.js"
-      ],
+      "matches": ["*://*.douyin.com/*"],
+      "js": ["src/content/sites/douyin.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["*://movie.douban.com/subject/*"],
+      "js": ["src/content/sites/douban.js"],
       "run_at": "document_end"
     },
     {
-      "matches": [
-        "*://movie.douban.com/subject/*"
-      ],
-      "js": [
-        "js/content/douban.js"
-      ],
+      "matches": ["*://*.data-baker.com/specs/*"],
+      "js": ["src/content/sites/data-baker.js"],
       "run_at": "document_end"
     },
     {
-      "matches": [
-        "*://*.data-baker.com/specs/*"
-      ],
-      "js": [
-        "js/content/data-baker.js"
-      ],
-      "run_at": "document_end"
-    },
-    {
-      "matches": [
-        "*://*.upyunso.com/*"
-      ],
-      "js": [
-        "js/content/upyunso.js"
-      ],
+      "matches": ["*://*.upyunso.com/*"],
+      "js": ["src/content/sites/upyunso.js"],
       "run_at": "document_end"
     }
-  ],
-  "permissions": [
-    "contextMenus",
-    "tabs",
-    "notifications",
-    "webRequest",
-    "webRequestBlocking",
-    "storage",
-    "http://*/*",
-    "https://*/*"
-  ],
-  "web_accessible_resources": [
-    "js/inject/musictools.js",
-    "js/inject/iqiyi.js",
-    "js/inject/youku.js",
-    "js/inject/vqq.js"
   ],
   "homepage_url": "https://mp.weixin.qq.com/s/2Pn_D5hi6i6aMF7GySZ9rQ"
 }

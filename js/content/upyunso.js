@@ -1,1 +1,0 @@
-document.querySelectorAll('.modal')?.forEach(el => el.remove())

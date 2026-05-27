@@ -1,221 +1,94 @@
 <!DOCTYPE html>
-<html lang="zh">
-
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>popup</title>
-  <link rel="stylesheet" href="./css/popup.css">
-  <link href="./module/bootstrap/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="./module/remixIcon/remixicon.css">
-  <script src="./module/bootstrap/bootstrap.bundle.min.js"></script>
-  <script src="./module/jquery-3.6.1.min.js"></script>
-  <script src="./module/pinyin/pinyin_dict_withtone.js"></script>
-  <script src="./module/pinyin/pinyinUtil.js"></script>
-  <script src="./module/clipboardjs/clipboard.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>集盒</title>
+  <link rel="stylesheet" href="src/popup/popup.css" />
 </head>
-
 <body>
-  <div class="popup-container">
-    <div class="btn-group btn-group-sm">
-      <input type="radio" class="btn-check" name="btnradio" id="transBtn" autocomplete="off" checked>
-      <label class="btn btn-outline-primary" for="transBtn">快捷翻译</label>
+  <main class="popup">
+    <header class="tabs" role="tablist">
+      <button class="tab is-active" data-tab="translate" role="tab" aria-selected="true">翻译 / 计算</button>
+      <button class="tab" data-tab="tools" role="tab" aria-selected="false">更多工具</button>
+    </header>
 
-      <input type="radio" class="btn-check" name="btnradio" id="restBtn" autocomplete="off">
-      <label class="btn btn-outline-primary" for="restBtn">更多好玩的</label>
-    </div>
-    <div id="translate-tools">
-      <div class="mb-3 translation">
-        <nav class="nav">
-          <a class="nav-link" href="https://translate.google.com/" target="_blank">
-            <i class="ri-google-fill"></i>谷歌翻译
-          </a>
-          <a class="nav-link" href="https://cn.bing.com/translator" target="_blank">
-            <i class="ri-microsoft-fill"></i>微软翻译
-          </a>
-          <a class="nav-link" href="https://fanyi.youdao.com/" target="_blank">
-            <i class="ri-translate"></i>有道翻译
-          </a>
+    <!-- Translate + Calculator panel -->
+    <section class="panel" data-panel="translate">
+      <div class="trans">
+        <nav class="trans-links">
+          <a href="https://translate.google.com/" target="_blank" rel="noopener">Google</a>
+          <a href="https://cn.bing.com/translator" target="_blank" rel="noopener">Bing</a>
+          <a href="https://fanyi.youdao.com/" target="_blank" rel="noopener">有道</a>
         </nav>
-        <textarea autofocus class="form-control" id="exampleFormControlTextarea1" rows="2"
-          placeholder="请输入文本"></textarea>
-      </div>
 
-      <div class="tr-toggle">
-        <span class="type-1">en</span>
-        <span class="toggle-btn">
-          <i class="ri-arrow-left-right-line"></i>
-        </span>
-        <span class="type-2">zh</span>
-      </div>
-      <ul class="list-group">
-        <li class="list-group-item">
-          <div class="empty">翻译</div>
-          <div class="result">
-            <div class="spinner-border text-success" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-          </div>
-        </li>
-      </ul>
-      <div class="calculator-section">
-        <div class="calculator-header">
-          <i class="ri-calculator-line"></i>
-          <span>计算器</span>
+        <textarea id="trans-input" rows="2" placeholder="输入文本，自动检测语言并翻译" autofocus></textarea>
+
+        <div id="trans-toggle" class="trans-toggle" hidden>
+          <span class="lang" data-from></span>
+          <button class="swap" type="button" title="交换方向">⇄</button>
+          <span class="lang" data-to></span>
         </div>
-        <div class="calculator-input-wrapper">
-          <input type="text" class="form-control calculator-input" id="calculatorInput" placeholder="输入表达式">
-          <div class="calculator-result">
-            <span class="result-label">= </span>
-            <span class="result-value"></span>
-          </div>
-        </div>
-        <div class="calculator-history" id="calculatorHistory">
-          <!-- 历史记录将在这里显示 -->
-        </div>
-      </div>
-      <div class="copy-success">
-        <i class="ri-checkbox-circle-fill"></i>
-        <div></div>
-      </div>
-    </div>
-    <div class="offcanvas offcanvas-bottom" style="min-height: 200px;height: initial;" tabindex="-1"
-      id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasBottomLabel">TITLE</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body small" style="text-align: center;">
-        <div class="contnet" style="text-align: left;">
-          <textarea autofocus class="form-control" id="toPinyin" rows="2" placeholder="请输入中文汉字"></textarea>
-        </div>
-      </div>
-    </div>
-    <div id="rest-tools">
-      <div class="card mb-2">
-        <div class="card-header">功能类</div>
-        <div class="card-body feat-box">
-          <div class="feat-item" data-feat-type="pinyin" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom"
-            aria-controls="offcanvasBottom">
-            <div>
-              <i class="ri-pinyin-input"></i>
-              <span>汉字转拼音</span>
-            </div>
-          </div>
-          <div class="feat-item disabled" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom"
-            aria-controls="offcanvasBottom">
-            <div>
-              <i class="ri-more-fill"></i>
-              <span>...</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header">开关类</div>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item">
-            <div class="switch-box">
-              <label>网页图片匣子 - 查看记录的所有图片</label>
-              <div class="form-check form-switch">
-                <input data-type="previewPics" class="form-check-input" type="checkbox" role="switch">
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item">
-            <div class="switch-box">
-              <label>网页自动滚动</label>
-              <div class="form-check form-switch">
-                <input data-type="autoScrolling" class="form-check-input" type="checkbox" role="switch">
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item">
-            <div class="switch-box">
-              <label>网页编辑模式</label>
-              <div class="form-check form-switch">
-                <input data-type="editMode" class="form-check-input" type="checkbox" role="switch">
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item">
-            <div class="switch-box">
-              <label>定时刷新网页</label>
-              <div class="form-check form-switch">
-                <input data-type="timingRequest" class="form-check-input" type="checkbox" role="switch">
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item">
-            <div class="switch-box">
-              <label>网页置灰/恢复彩色</label>
-              <div class="form-check form-switch">
-                <input data-type="grayscale" class="form-check-input" type="checkbox" role="switch">
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item">
-            <div class="switch-box">
-              <label>右键菜单快捷多平台搜索</label>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
-              </div>
-            </div>
-          <li class="list-group-item">
-            <div class="switch-box">
-              <label>网页版抖音添加下载按钮</label>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item">
-            <div class="switch-box">
-              <label>bilibili 增加 2-4x 倍数播放</label>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item">
-            <div class="switch-box">
-              <label>CSDN 自动展开更多，免登录复制</label>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item">
-            <div class="switch-box">
-              <label>网易云音乐音乐、专辑图下载</label>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item">
-            <div class="switch-box">
-              <label>豆瓣增加搜索电影，搜片看片更快捷</label>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
-              </div>
-            </div>
-          </li>
-          <li class="list-group-item">
-            <div class="switch-box">
-              <label>标贝文字转语音去字数限制，加下载按钮</label>
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" role="switch" checked disabled>
-              </div>
-            </div>
-          </li>
+
+        <ul id="trans-result" class="trans-result">
+          <li class="trans-empty">翻译结果</li>
         </ul>
-      </div>
-    </div>
-    <p class="copyright">集盒（SetBox）by @公众号：Slothful</p>
-  </div>
-  <script src="./js/popup.js"></script>
-</body>
 
+        <div id="toast" class="toast" hidden></div>
+      </div>
+
+      <div class="calc">
+        <header class="calc-head">
+          <span class="calc-title">计算器</span>
+          <button id="calc-clear" type="button" class="link-btn" title="清空历史">清空</button>
+        </header>
+        <input id="calc-input" type="text" placeholder="例如 (3 + 4) * 2 / 5" autocomplete="off" spellcheck="false" />
+        <div id="calc-result" class="calc-result" hidden>
+          <span class="lbl">=</span>
+          <span class="val"></span>
+        </div>
+        <ol id="calc-history" class="calc-history"></ol>
+      </div>
+    </section>
+
+    <!-- Tools panel -->
+    <section class="panel" data-panel="tools" hidden>
+      <div class="card">
+        <h3 class="card-title">功能</h3>
+        <div class="grid">
+          <button class="feat" data-feat="pinyin">
+            <span class="feat-ico">拼</span>
+            <span>汉字转拼音</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">开关</h3>
+        <ul class="switches">
+          <li><label><span>网页图片匣子</span><input type="checkbox" data-toggle="previewPics" /></label></li>
+          <li><label><span>网页自动滚动</span><input type="checkbox" data-toggle="autoScrolling" /></label></li>
+          <li><label><span>网页编辑模式</span><input type="checkbox" data-toggle="editMode" /></label></li>
+          <li><label><span>定时刷新当前页</span><input type="checkbox" data-toggle="timingReload" /></label></li>
+          <li><label><span>网页置灰</span><input type="checkbox" data-toggle="grayscale" /></label></li>
+        </ul>
+        <p class="tip">下面这些站点级增强默认开启：右键多平台搜索 / 抖音下载 / B 站倍速 / CSDN 解锁 / 网易云下载 / 豆瓣搜片 / 标贝合成 / 古诗文净化 等。</p>
+      </div>
+    </section>
+
+    <footer class="copyright">集盒 SetBox · @公众号 Slothful</footer>
+  </main>
+
+  <!-- Pinyin sheet -->
+  <dialog id="pinyin-sheet" class="sheet">
+    <header class="sheet-head">
+      <strong>汉字转拼音</strong>
+      <button type="button" class="sheet-close" data-close>×</button>
+    </header>
+    <textarea id="pinyin-input" rows="3" placeholder="输入中文汉字"></textarea>
+    <ul id="pinyin-result" class="pinyin-result"></ul>
+  </dialog>
+
+  <script src="src/popup/popup.js" type="module"></script>
+</body>
 </html>

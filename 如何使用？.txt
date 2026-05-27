@@ -1,3 +1,7 @@
-关注公众号Slothful回复“集盒”查看安装方法
-或
-访问此链接地址：https://mp.weixin.qq.com/s/2Pn_D5hi6i6aMF7GySZ9rQ
+安装方法：
+1. 打开 chrome://extensions/ （Edge 用户打开 edge://extensions/）
+2. 右上角开启「开发者模式」
+3. 点击「加载已解压的扩展程序」
+4. 选择本目录，安装完成。
+
+更多说明请关注公众号 Slothful，回复「集盒」。
