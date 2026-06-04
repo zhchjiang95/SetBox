@@ -16,6 +16,7 @@
     target.dataset.sbPatched = "1";
 
     const links = [
+      { text: "观影GYING", url: `https://www.xn--wcv59z.com/search?q=${encodeURIComponent(title)}&type=&mode=1` },
       { text: "阿里搜", url: `https://aliso.cc/s/${encodeURIComponent(title)}-1-0.html` },
       { text: "盘搜", url: `https://panso.pro/search?q=${encodeURIComponent(title)}&type=ALY` },
       { text: "UP 云搜", url: `https://www.upyunso.com/search.html?page=1&keyword=${encodeURIComponent(title)}` },
