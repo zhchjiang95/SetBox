@@ -49,6 +49,7 @@
     {
       "matches": ["<all_urls>"],
       "js": ["src/content/media-sniffer.js"],
+      "css": ["src/content/shared/content.css"],
       "run_at": "document_start",
       "all_frames": true
     },
@@ -88,11 +89,6 @@
       "matches": ["*://music.163.com/*"],
       "js": ["src/content/sites/music163.js"],
       "run_at": "document_end"
-    },
-    {
-      "matches": ["*://*.douyin.com/*"],
-      "js": ["src/content/sites/douyin.js"],
-      "run_at": "document_idle"
     },
     {
       "matches": ["*://movie.douban.com/subject/*"],

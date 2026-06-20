@@ -123,7 +123,6 @@
       const a = document.createElement("a");
       a.href = objectUrl;
       a.download = filename || "";
-      document.body.appendChild(a);
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(objectUrl), 5000);

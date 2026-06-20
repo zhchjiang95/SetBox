@@ -71,9 +71,10 @@
     });
 
     coverBtn.addEventListener("click", async () => {
-      const cover = doc.querySelector("img.j-img")?.dataset.src;
+      const el = doc.querySelector("img.j-img")
+      const cover = el?.dataset.src;
       if (!cover) return;
-      const album = doc.querySelectorAll(".des a.s-fc7")?.[1]?.innerText || "cover";
+      const album = el?.getAttribute("alt")?.split("_")[0] || "cover";
       await SB.download(cover, album);
     });
 

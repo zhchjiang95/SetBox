@@ -87,6 +87,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       const count = tabMedia[tabId].length;
       chrome.action.setBadgeText({ tabId, text: String(count) }).catch(() => {});
       chrome.action.setBadgeBackgroundColor({ tabId, color: "#316cf4" }).catch(() => {});
+
+      // 向页面发送最新的资源列表广播
+      chrome.tabs.sendMessage(tabId, {
+        type: "sb:media-list-updated",
+        list: tabMedia[tabId]
+      }).catch(() => {});
     }
     return false;
   }
@@ -108,6 +114,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       if (tab?.id) {
         delete tabMedia[tab.id];
         chrome.action.setBadgeText({ tabId: tab.id, text: "" }).catch(() => {});
+        // 广播空列表以关闭/清理网页上的浮窗
+        chrome.tabs.sendMessage(tab.id, {
+          type: "sb:media-list-updated",
+          list: []
+        }).catch(() => {});
       }
       sendResponse({ ok: true });
     }).catch((err) => {

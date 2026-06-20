@@ -8,6 +8,10 @@
   let enabled = false;
   const earlyBuffer = [];
 
+  // 浮窗状态管理
+  let userClosedFloat = false;
+  let mediaList = [];
+
   // 1. 立即同步监听主世界的媒体捕获事件，避免因异步读取配置而遗漏早期事件
   window.addEventListener("sb-media-detected", (e) => {
     if (!e.detail || !e.detail.url) return;
@@ -29,10 +33,115 @@
         reportMedia(item.url, item.type);
       }
       initSniffer();
+      // 获取当前已嗅探到的列表并更新浮窗
+      fetchAndRenderFloat();
     } else {
       earlyBuffer.length = 0;
     }
   });
+
+  // 从后台获取当前的媒体列表并进行浮窗更新
+  function fetchAndRenderFloat() {
+    if (window !== window.top) return;
+    chrome.runtime.sendMessage({ type: "sb:get-media-list" }, (res) => {
+      if (res && res.ok && Array.isArray(res.list)) {
+        mediaList = res.list;
+        updateFloatWidget();
+      }
+    });
+  }
+
+  // 清除网页左下角的资源列表浮窗
+  function removeFloatWidget() {
+    const el = document.getElementById("sb-sniffer-float");
+    if (el) el.remove();
+  }
+
+  // 更新/渲染网页左下角的资源列表浮窗
+  function updateFloatWidget() {
+    if (!enabled || userClosedFloat || mediaList.length === 0) {
+      removeFloatWidget();
+      return;
+    }
+
+    SB.waitFor("body").then((body) => {
+      let widget = document.getElementById("sb-sniffer-float");
+      if (!widget) {
+        widget = SB.h("div", { id: "sb-sniffer-float", class: "sb-sniffer-float" });
+        body.appendChild(widget);
+      }
+
+      // 清空旧元素，重新填充
+      widget.innerHTML = "";
+
+      // 1. 头部标题和关闭按钮
+      const head = SB.h("div", { class: "sb-sniffer-float-head" }, [
+        SB.h("span", { class: "sb-sniffer-float-title" }, `集盒已检测到的资源 (${mediaList.length})`),
+        SB.h("button", {
+          class: "sb-sniffer-float-close",
+          title: "关闭",
+          onclick: () => {
+            userClosedFloat = true;
+            removeFloatWidget();
+          }
+        }, "×")
+      ]);
+
+      // 2. 资源列表
+      const listEl = SB.h("ul", { class: "sb-sniffer-float-list" });
+      mediaList.forEach((item, index) => {
+        // 提取文件名
+        let filename = "";
+        try {
+          const parsed = new URL(item.url);
+          const lastPart = parsed.pathname.substring(parsed.pathname.lastIndexOf("/") + 1);
+          filename = lastPart && lastPart.includes(".") ? decodeURIComponent(lastPart) : "";
+        } catch (e) {}
+
+        if (!filename) {
+          filename = item.title || "未知资源";
+        }
+
+        const badgeClass = item.type.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+        const buttons = [];
+        
+        // 复制链接按钮
+        const copyBtn = SB.h("button", {
+          class: "sb-sniffer-float-btn",
+          onclick: () => {
+            SB.copy(item.url).then(() => {
+              copyBtn.textContent = "已复制";
+              setTimeout(() => { copyBtn.textContent = "复制"; }, 1500);
+            });
+          }
+        }, "复制");
+        buttons.push(copyBtn);
+
+        // 下载按钮（流媒体除外）
+        if (item.type !== "m3u8" && item.type !== "mpd") {
+          const dlBtn = SB.h("button", {
+            class: "sb-sniffer-float-btn",
+            onclick: () => {
+              SB.download(item.url, filename.includes(".") ? filename : `${filename}.mp4`);
+            }
+          }, "下载");
+          buttons.push(dlBtn);
+        }
+
+        const itemEl = SB.h("li", { class: "sb-sniffer-float-item" }, [
+          SB.h("span", { class: `sb-sniffer-float-badge ${badgeClass}` }, item.type.toUpperCase()),
+          SB.h("span", { class: "sb-sniffer-float-name", title: item.url }, `${index + 1}. ${filename}`),
+          SB.h("div", { style: "display: flex; gap: 2px; flex-shrink: 0;" }, buttons)
+        ]);
+
+        listEl.appendChild(itemEl);
+      });
+
+      widget.appendChild(head);
+      widget.appendChild(listEl);
+    });
+  }
 
   // 初始化嗅探
   function initSniffer() {
@@ -63,7 +172,7 @@
     if (!enabled) return;
     document.querySelectorAll("video, audio").forEach((el) => {
       const src = el.currentSrc || el.src;
-      // 跳过 blob: URL（MediaSource 产生的 blob 链接无法直接下载，无用）
+      // 跳过 blob: URL
       if (src && !src.startsWith("blob:")) {
         reportMedia(src, el.tagName.toLowerCase() === "audio" ? "audio" : "video");
       }
@@ -115,7 +224,7 @@
       type: SB.MSG.MEDIA_DETECTED,
       url: url,
       mediaType: type,
-      title: document.title || "未知视频"
+      title: document.title || "未知资源"
     }).catch(() => {});
   }
 
@@ -124,19 +233,30 @@
     if (msg?.type === SB.MSG.TOGGLE_FEATURE && msg.feature === "mediaSniffer") {
       enabled = !!msg.enabled;
       if (enabled) {
+        userClosedFloat = false; // 重新开启功能时重置关闭标志
         while (earlyBuffer.length > 0) {
           const item = earlyBuffer.shift();
           reportMedia(item.url, item.type);
         }
         initSniffer();
+        fetchAndRenderFloat();
       } else {
         earlyBuffer.length = 0;
+        removeFloatWidget();
       }
     }
 
     // 下载代理
     if (msg?.type === "sb:download-media" && msg.url) {
       SB.download(msg.url, msg.filename || "download");
+    }
+
+    // 接收后台发来的最新媒体资源列表广播
+    if (msg?.type === "sb:media-list-updated") {
+      if (window === window.top) {
+        mediaList = msg.list || [];
+        updateFloatWidget();
+      }
     }
 
     return false;
