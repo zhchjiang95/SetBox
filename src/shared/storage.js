@@ -14,6 +14,7 @@ const DEFAULT_FEATURES = {
   editMode: false,
   grayscale: false,
   timingReload: false,
+  mediaSniffer: true,
 };
 
 export async function getFeatures() {

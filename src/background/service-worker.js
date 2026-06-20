@@ -34,6 +34,9 @@ chrome.contextMenus.onClicked.addListener((info) => {
   chrome.tabs.create({ url: engine.url(info.selectionText) });
 });
 
+/* -------------------- Media Sniffer Cache -------------------- */
+const tabMedia = {}; // 存储各个标签页检测到的媒体资源列表
+
 /* -------------------- Messaging -------------------- */
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (!msg || typeof msg !== "object") return false;
@@ -49,8 +52,68 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.feature === FEATURES.TIMING_RELOAD) {
       handleTimingReload(sender.tab, msg.enabled, msg.intervalSeconds);
     }
+    if (msg.feature === FEATURES.MEDIA_SNIFFER) {
+      if (!msg.enabled) {
+        // 关闭时清除缓存与徽章数
+        for (const tabId of Object.keys(tabMedia)) {
+          delete tabMedia[tabId];
+          chrome.action.setBadgeText({ tabId: Number(tabId), text: "" }).catch(() => {});
+        }
+      }
+    }
     sendResponse({ ok: true });
     return false;
+  }
+
+  // 媒体资源嗅探上报
+  if (msg.type === MSG.MEDIA_DETECTED) {
+    const tabId = sender.tab?.id;
+    if (!tabId) return false;
+
+    if (!tabMedia[tabId]) {
+      tabMedia[tabId] = [];
+    }
+
+    // 重复性检查
+    if (!tabMedia[tabId].some((m) => m.url === msg.url)) {
+      tabMedia[tabId].push({
+        url: msg.url,
+        title: msg.title || "未知视频",
+        type: msg.mediaType || "video",
+        time: Date.now()
+      });
+
+      // 更新徽章数
+      const count = tabMedia[tabId].length;
+      chrome.action.setBadgeText({ tabId, text: String(count) }).catch(() => {});
+      chrome.action.setBadgeBackgroundColor({ tabId, color: "#316cf4" }).catch(() => {});
+    }
+    return false;
+  }
+
+  // 获取特定标签页的媒体列表
+  if (msg.type === MSG.GET_MEDIA_LIST) {
+    chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+      const list = tab && tabMedia[tab.id] ? tabMedia[tab.id] : [];
+      sendResponse({ ok: true, list });
+    }).catch((err) => {
+      sendResponse({ ok: false, error: err.message });
+    });
+    return true; // 异步响应
+  }
+
+  // 清空特定标签页的媒体列表
+  if (msg.type === MSG.CLEAR_MEDIA_LIST) {
+    chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+      if (tab?.id) {
+        delete tabMedia[tab.id];
+        chrome.action.setBadgeText({ tabId: tab.id, text: "" }).catch(() => {});
+      }
+      sendResponse({ ok: true });
+    }).catch((err) => {
+      sendResponse({ ok: false, error: err.message });
+    });
+    return true; // 异步响应
   }
 
   return false;
@@ -87,6 +150,15 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   });
 });
 
+// 标签页更新时清理媒体缓存和徽章
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status === "loading") {
+    delete tabMedia[tabId];
+    chrome.action.setBadgeText({ tabId, text: "" }).catch(() => {});
+  }
+});
+
 chrome.tabs.onRemoved.addListener((tabId) => {
   chrome.alarms.clear(ALARM_PREFIX + tabId);
+  delete tabMedia[tabId];
 });

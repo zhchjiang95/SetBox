@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "集盒 SetBox",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "一个工具集合盒子 • 公众号 @Slothful",
   "icons": {
     "16": "img/icon.png",
@@ -32,12 +32,25 @@
       "matches": ["<all_urls>"],
       "js": ["src/content/shared/sb.js"],
       "run_at": "document_start",
-      "all_frames": false
+      "all_frames": true
     },
     {
       "matches": ["<all_urls>"],
       "js": ["src/content/grayscale.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/media-sniffer-main.js"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": true
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/media-sniffer.js"],
+      "run_at": "document_start",
+      "all_frames": true
     },
     {
       "matches": ["<all_urls>"],

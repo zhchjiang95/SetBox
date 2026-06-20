@@ -287,9 +287,154 @@ async function initPinyin() {
   );
 }
 
+/* -------------------- Media Sniffer -------------------- */
+async function initSniffer() {
+  const snifferList = $("#sniffer-list");
+  const snifferStatus = $("#sniffer-status");
+  const clearBtn = $("#sniffer-clear");
+
+  const renderSniffer = async () => {
+    const features = await getFeatures();
+    
+    // 如果嗅探功能未开启
+    if (!features.mediaSniffer) {
+      snifferStatus.hidden = false;
+      snifferList.hidden = true;
+      clearBtn.hidden = true;
+      snifferStatus.innerHTML = `
+        <span>网页资源嗅探功能已关闭</span>
+        <button type="button" class="toggle-hint-btn" id="sniffer-enable-btn">开启功能</button>
+      `;
+      
+      const enableBtn = $("#sniffer-enable-btn", snifferStatus);
+      if (enableBtn) {
+        enableBtn.addEventListener("click", async () => {
+          const cb = $(`input[type=checkbox][data-toggle=mediaSniffer]`);
+          if (cb) {
+            cb.checked = true;
+            cb.dispatchEvent(new Event("change"));
+            // 稍等一会儿让后台与存储状态更新
+            setTimeout(renderSniffer, 100);
+          }
+        });
+      }
+      return;
+    }
+
+    // 已开启，向 background 请求当前活跃 tab 嗅探到的媒体文件
+    const res = await sendToBackground({ type: "sb:get-media-list" });
+    if (res && res.ok && Array.isArray(res.list) && res.list.length > 0) {
+      snifferStatus.hidden = true;
+      snifferList.hidden = false;
+      clearBtn.hidden = false;
+      snifferList.innerHTML = "";
+
+      res.list.forEach((item) => {
+        const li = document.createElement("li");
+        li.className = "sniffer-item";
+
+        // 标签类型徽章
+        const badge = document.createElement("span");
+        const badgeClass = item.type.toLowerCase().replace(/[^a-z0-9]/g, "");
+        badge.className = `sniffer-badge ${badgeClass}`;
+        badge.textContent = item.type.toUpperCase();
+
+        // 信息区
+        const info = document.createElement("div");
+        info.className = "sniffer-info";
+
+        // 提取文件名
+        let filename = "";
+        try {
+          const parsed = new URL(item.url);
+          const lastPart = parsed.pathname.substring(parsed.pathname.lastIndexOf("/") + 1);
+          filename = lastPart && lastPart.includes(".") ? decodeURIComponent(lastPart) : "";
+        } catch (e) {}
+
+        if (!filename) {
+          filename = item.title || "未知媒体";
+        }
+
+        const name = document.createElement("div");
+        name.className = "sniffer-name";
+        name.textContent = filename;
+        name.title = item.url;
+
+        const urlEl = document.createElement("div");
+        urlEl.className = "sniffer-url";
+        urlEl.textContent = item.url;
+
+        info.appendChild(name);
+        info.appendChild(urlEl);
+
+        // 操作按钮区
+        const actions = document.createElement("div");
+        actions.className = "sniffer-actions";
+
+        // 复制链接按钮（所有类型都支持）
+        const copyBtn = document.createElement("button");
+        copyBtn.type = "button";
+        copyBtn.className = "sniffer-btn";
+        copyBtn.textContent = "复制";
+        copyBtn.addEventListener("click", () => copyText(item.url));
+        actions.appendChild(copyBtn);
+
+        // 下载按钮（m3u8/mpd 需要专业工具，仅提供复制链接；其余类型可直接下载）
+        if (item.type !== "m3u8" && item.type !== "mpd") {
+          const dlBtn = document.createElement("button");
+          dlBtn.type = "button";
+          dlBtn.className = "sniffer-btn";
+          dlBtn.textContent = "下载";
+          dlBtn.addEventListener("click", async () => {
+            await sendToActiveTab({
+              type: "sb:download-media",
+              url: item.url,
+              filename: filename.includes(".") ? filename : `${filename}.mp4`
+            });
+            toast("已开始下载...");
+          });
+          actions.appendChild(dlBtn);
+        }
+
+        li.appendChild(badge);
+        li.appendChild(info);
+        li.appendChild(actions);
+        snifferList.appendChild(li);
+      });
+    } else {
+      snifferStatus.hidden = false;
+      snifferList.hidden = true;
+      clearBtn.hidden = true;
+      snifferStatus.innerHTML = `
+        <span>暂未捕获到媒体资源</span>
+        <span style="font-size: 11px; opacity: 0.7;">播放网页视频可自动触发嗅探</span>
+      `;
+    }
+  };
+
+  // 清空按钮事件
+  clearBtn.addEventListener("click", async () => {
+    const res = await sendToBackground({ type: "sb:clear-media-list" });
+    if (res && res.ok) {
+      toast("已清空当前列表");
+      renderSniffer();
+    }
+  });
+
+  // 点击 sniffer tab 时重新渲染
+  const snifferTab = $(".tab[data-tab=sniffer]");
+  if (snifferTab) {
+    snifferTab.addEventListener("click", renderSniffer);
+  }
+
+  // 初始加载
+  await renderSniffer();
+}
+
 /* -------------------- Boot -------------------- */
 initTabs();
 initTranslator();
 initCalculator();
 initToggles();
 initPinyin();
+initSniffer();

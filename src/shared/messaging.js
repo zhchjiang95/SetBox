@@ -5,6 +5,9 @@ export const MSG = Object.freeze({
   TIMING_RELOAD: "sb:timing-reload",
   TOGGLE_FEATURE: "sb:toggle-feature",
   CONTEXT_SEARCH: "sb:context-search",
+  MEDIA_DETECTED: "sb:media-detected",
+  GET_MEDIA_LIST: "sb:get-media-list",
+  CLEAR_MEDIA_LIST: "sb:clear-media-list",
 });
 
 export const FEATURES = Object.freeze({
@@ -13,6 +16,7 @@ export const FEATURES = Object.freeze({
   EDIT_MODE: "editMode",
   GRAYSCALE: "grayscale",
   TIMING_RELOAD: "timingReload",
+  MEDIA_SNIFFER: "mediaSniffer",
 });
 
 /** Send a message to the active tab. Returns the response or null on failure. */
