@@ -8,6 +8,8 @@ export const MSG = Object.freeze({
   MEDIA_DETECTED: "sb:media-detected",
   GET_MEDIA_LIST: "sb:get-media-list",
   CLEAR_MEDIA_LIST: "sb:clear-media-list",
+  TRIGGER_FULLSCREEN: "sb:trigger-fullscreen",
+  FULLSCREEN_ELEMENT: "sb:fullscreen-element",
 });
 
 export const FEATURES = Object.freeze({
@@ -17,6 +19,7 @@ export const FEATURES = Object.freeze({
   GRAYSCALE: "grayscale",
   TIMING_RELOAD: "timingReload",
   MEDIA_SNIFFER: "mediaSniffer",
+  AUTO_FULLSCREEN: "autoFullscreen",
 });
 
 /** Send a message to the active tab. Returns the response or null on failure. */

@@ -83,12 +83,17 @@
             <span class="feat-ico">拼</span>
             <span>汉字转拼音</span>
           </button>
+          <button class="feat" data-feat="fullscreen">
+            <span class="feat-ico">屏</span>
+            <span>自动全屏配置</span>
+          </button>
         </div>
       </div>
 
       <div class="card">
         <h3 class="card-title">开关</h3>
         <ul class="switches">
+          <li><label><span>网页自动全屏</span><input type="checkbox" data-toggle="autoFullscreen" /></label></li>
           <li><label><span>网页图片匣子</span><input type="checkbox" data-toggle="previewPics" /></label></li>
           <li><label><span>网页资源嗅探</span><input type="checkbox" data-toggle="mediaSniffer" /></label></li>
           <li><label><span>网页自动滚动</span><input type="checkbox" data-toggle="autoScrolling" /></label></li>
@@ -111,6 +116,40 @@
     </header>
     <textarea id="pinyin-input" rows="3" placeholder="输入中文汉字"></textarea>
     <ul id="pinyin-result" class="pinyin-result"></ul>
+  </dialog>
+
+  <!-- Fullscreen Dashboard sheet -->
+  <dialog id="fullscreen-sheet" class="sheet fullscreen-sheet">
+    <header class="sheet-head">
+      <strong>网页自动全屏</strong>
+      <button type="button" class="sheet-close" data-close>×</button>
+    </header>
+
+    <div class="fs-actions">
+      <button type="button" id="fs-add-current-btn" class="fs-btn fs-btn-primary" title="将当前打开标签页的网址填入输入框">
+        <span>+</span> 填入当前页面
+      </button>
+      <button type="button" id="fs-test-now-btn" class="fs-btn fs-btn-secondary" title="立即让当前浏览器窗口进入全屏模式">
+        ⛶ 立即全屏窗口
+      </button>
+    </div>
+
+    <div class="fs-form">
+      <input type="text" id="fs-input-url" placeholder="网址或匹配规则 (如 localhost:3000 或 /screen)" />
+      <div class="fs-input-row">
+        <input type="text" id="fs-input-selector" placeholder="元素ID/选择器 (选填，如 #my-screen)" />
+        <button type="button" id="fs-add-btn" class="fs-btn fs-btn-primary">添加规则</button>
+      </div>
+    </div>
+
+    <div class="fs-list-wrap">
+      <div class="fs-list-head">
+        <span>规则列表 (<span id="fs-count">0</span>)</span>
+        <span class="fs-hint-text">匹配即全屏 / 支持特定元素</span>
+      </div>
+      <ul id="fs-list" class="fs-list"></ul>
+      <div id="fs-empty" class="fs-empty">暂未添加规则，可在上方添加</div>
+    </div>
   </dialog>
 
   <script src="src/popup/popup.js" type="module"></script>

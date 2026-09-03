@@ -8,6 +8,9 @@ import {
   getCalcHistory,
   pushCalcHistory,
   clearCalcHistory,
+  getFullscreenUrls,
+  addFullscreenUrl,
+  removeFullscreenUrl,
 } from "../shared/storage.js";
 import { sendToActiveTab, sendToBackground, MSG, FEATURES } from "../shared/messaging.js";
 
@@ -211,6 +214,13 @@ async function initToggles() {
         const safe = Math.max(30, seconds);
         await setTimingInterval(safe);
         payload.intervalSeconds = safe;
+      }
+
+      if (name === FEATURES.AUTO_FULLSCREEN && cb.checked) {
+        const urls = await getFullscreenUrls();
+        if (!urls.length) {
+          toast("已开启，可点击「自动全屏配置」添加网址");
+        }
       }
 
       await setFeature(name, cb.checked);
@@ -431,6 +441,152 @@ async function initSniffer() {
   await renderSniffer();
 }
 
+/* -------------------- Fullscreen Dashboard -------------------- */
+async function initFullscreen() {
+  const sheet = $("#fullscreen-sheet");
+  if (!sheet) return;
+
+  const listEl = $("#fs-list");
+  const emptyEl = $("#fs-empty");
+  const countEl = $("#fs-count");
+  const inputUrl = $("#fs-input-url");
+  const inputSelector = $("#fs-input-selector");
+  const addBtn = $("#fs-add-btn");
+  const addCurrentBtn = $("#fs-add-current-btn");
+  const testNowBtn = $("#fs-test-now-btn");
+
+  const renderList = async () => {
+    const rules = await getFullscreenUrls();
+    countEl.textContent = String(rules.length);
+
+    if (!rules.length) {
+      emptyEl.hidden = false;
+      listEl.hidden = true;
+      listEl.innerHTML = "";
+      return;
+    }
+
+    emptyEl.hidden = true;
+    listEl.hidden = false;
+    listEl.innerHTML = "";
+
+    rules.forEach((rule) => {
+      const li = document.createElement("li");
+      li.className = "fs-item";
+
+      const mainEl = document.createElement("div");
+      mainEl.className = "fs-item-main";
+
+      const patternEl = document.createElement("span");
+      patternEl.className = "fs-item-pattern";
+      patternEl.textContent = rule.pattern;
+      patternEl.title = `匹配规则: ${rule.pattern}`;
+      mainEl.appendChild(patternEl);
+
+      if (rule.selector) {
+        const selBadge = document.createElement("span");
+        selBadge.className = "fs-item-selector";
+        selBadge.textContent = rule.selector;
+        selBadge.title = `目标元素选择器: ${rule.selector}`;
+        mainEl.appendChild(selBadge);
+      } else {
+        const fullBadge = document.createElement("span");
+        fullBadge.className = "fs-item-tag";
+        fullBadge.textContent = "整页";
+        fullBadge.title = "整页窗口全屏";
+        mainEl.appendChild(fullBadge);
+      }
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "fs-del-btn";
+      delBtn.textContent = "删除";
+      delBtn.title = "删除此规则";
+      delBtn.addEventListener("click", async () => {
+        await removeFullscreenUrl(rule.pattern);
+        toast(`已删除规则: ${rule.pattern}`);
+        await renderList();
+      });
+
+      li.appendChild(mainEl);
+      li.appendChild(delBtn);
+      listEl.appendChild(li);
+    });
+  };
+
+  // 添加规则
+  const handleAddRule = async () => {
+    const url = (inputUrl.value || "").trim();
+    const selector = (inputSelector.value || "").trim();
+
+    if (!url) {
+      toast("请输入有效的网址或规则");
+      inputUrl.focus();
+      return;
+    }
+
+    await addFullscreenUrl(url, selector);
+    inputUrl.value = "";
+    inputSelector.value = "";
+    toast(selector ? "已添加元素全屏规则" : "已添加整页全屏规则");
+    await renderList();
+  };
+
+  addBtn.addEventListener("click", handleAddRule);
+  inputUrl.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      if (inputSelector.value.trim()) {
+        handleAddRule();
+      } else {
+        inputSelector.focus();
+      }
+    }
+  });
+  inputSelector.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleAddRule();
+  });
+
+  // 快捷填入当前活跃标签页网址
+  addCurrentBtn.addEventListener("click", async () => {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab || !tab.url || tab.url.startsWith("chrome://") || tab.url.startsWith("chrome-extension://") || tab.url.startsWith("edge://")) {
+        toast("当前页面不是有效的网页");
+        return;
+      }
+      inputUrl.value = tab.url;
+      inputSelector.focus();
+      toast("已填入当前网址，可输入元素选择器后点击添加");
+    } catch {
+      toast("获取当前页面失败");
+    }
+  });
+
+  // 立即全屏当前窗口测试
+  testNowBtn.addEventListener("click", async () => {
+    const res = await sendToBackground({ type: MSG.TRIGGER_FULLSCREEN });
+    if (res && res.ok) {
+      toast("已触发窗口全屏");
+    } else {
+      toast("全屏触发失败");
+    }
+  });
+
+  // 打开配置面板
+  $$(".feat[data-feat=fullscreen]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      await renderList();
+      sheet.showModal();
+      inputUrl.focus();
+    });
+  });
+
+  // 关闭按钮
+  $$("[data-close]", sheet).forEach((b) =>
+    b.addEventListener("click", () => sheet.close())
+  );
+}
+
 /* -------------------- Boot -------------------- */
 initTabs();
 initTranslator();
@@ -438,3 +594,5 @@ initCalculator();
 initToggles();
 initPinyin();
 initSniffer();
+initFullscreen();
+

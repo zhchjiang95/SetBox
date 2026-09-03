@@ -60,7 +60,8 @@
         "src/content/auto-scrolling.js",
         "src/content/edit-mode.js",
         "src/content/timing-reload.js",
-        "src/content/translator.js"
+        "src/content/translator.js",
+        "src/content/auto-fullscreen.js"
       ],
       "css": ["src/content/shared/content.css"],
       "run_at": "document_end"

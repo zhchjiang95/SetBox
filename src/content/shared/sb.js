@@ -11,6 +11,7 @@
     GRAYSCALE: "grayscale",
     TIMING_RELOAD: "timingReload",
     MEDIA_SNIFFER: "mediaSniffer",
+    AUTO_FULLSCREEN: "autoFullscreen",
   });
 
   const MSG = Object.freeze({
@@ -21,6 +22,7 @@
     MEDIA_DETECTED: "sb:media-detected",
     GET_MEDIA_LIST: "sb:get-media-list",
     CLEAR_MEDIA_LIST: "sb:clear-media-list",
+    FULLSCREEN_ELEMENT: "sb:fullscreen-element",
   });
 
   function $(sel, root) {
