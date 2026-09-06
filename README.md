@@ -26,19 +26,18 @@
 - 定时刷新（按当前标签页）
 - 图片匣子（懒加载、可拖拽）
 - 网页置灰
-- 右键多平台搜索（谷歌 / 必应 / 百度 / 百度开发者）
+- 右键多平台搜索（谷歌 / 必应 / 百度）
 - 网页资源嗅探（默认开启，自动捕获视频/音频真实源地址，支持 bilibili, 抖音等网站）
 - 网页自动全屏（目标网址加载完成时自动进入 F11 全屏，适合大屏看板、展厅展示、沉浸浏览等）
 
 站点增强：
 
+- 豆包 AI（doubao.com）生成图片无水印高清还原与下载
 - bilibili 视频与番剧增加 2.5x / 3x / 3.5x / 4x 倍速
 - 古诗文网移除 WeChat 登录弹窗
 - gying.net 倍速菜单整理
-- CSDN 自动展开、免登录复制、移除「关注」墙
 - 网易云专辑/音乐下载（需先播放后点下载）
 - 豆瓣电影页快捷搜片入口
-- 标贝 TTS 字数解锁与语音下载
 
 弹窗：
 
@@ -75,7 +74,7 @@ src/
     shared/{sb.js, content.css}      # 共享工具与样式
     {preview-pics,auto-scrolling,edit-mode,timing-reload,
      translator,grayscale}.js
-    sites/{bilibili,csdn,...}.js
+    sites/{bilibili,doubao,...}.js
   vendor/pinyin/                     # 第三方拼音字典
 img/icon.png
 ```

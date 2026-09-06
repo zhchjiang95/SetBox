@@ -82,11 +82,6 @@
       "run_at": "document_end"
     },
     {
-      "matches": ["*://blog.csdn.net/*/article/*"],
-      "js": ["src/content/sites/csdn.js"],
-      "run_at": "document_end"
-    },
-    {
       "matches": ["*://music.163.com/*"],
       "js": ["src/content/sites/music163.js"],
       "run_at": "document_end"
@@ -97,14 +92,15 @@
       "run_at": "document_end"
     },
     {
-      "matches": ["*://*.data-baker.com/specs/*"],
-      "js": ["src/content/sites/data-baker.js"],
-      "run_at": "document_end"
-    },
-    {
       "matches": ["*://*.upyunso.com/*"],
       "js": ["src/content/sites/upyunso.js"],
       "run_at": "document_end"
+    },
+    {
+      "matches": ["*://*.doubao.com/*"],
+      "js": ["src/content/sites/doubao.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
     }
   ],
   "homepage_url": "https://mp.weixin.qq.com/s/2Pn_D5hi6i6aMF7GySZ9rQ"

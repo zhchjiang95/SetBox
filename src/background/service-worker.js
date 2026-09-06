@@ -10,7 +10,6 @@ const SEARCH_ENGINES = [
   { id: "sb-search-google", title: '谷歌搜索 "%s"', url: (q) => `https://www.google.com/search?q=${encodeURIComponent(q)}` },
   { id: "sb-search-bing", title: '必应搜索 "%s"', url: (q) => `https://cn.bing.com/search?q=${encodeURIComponent(q)}` },
   { id: "sb-search-baidu", title: '百度搜索 "%s"', url: (q) => `https://www.baidu.com/s?wd=${encodeURIComponent(q)}` },
-  { id: "sb-search-baidu-dev", title: '百度开发者搜索 "%s"', url: (q) => `https://kaifa.baidu.com/searchPage?module=SEARCH&wd=${encodeURIComponent(q)}` },
 ];
 
 function installContextMenus() {
